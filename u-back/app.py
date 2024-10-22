@@ -1,18 +1,22 @@
+import os
 from datetime import timedelta
 
+from dotenv import load_dotenv
 from flask import Flask, request, jsonify
-from flask_cors import cross_origin, CORS
+from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token, create_refresh_token, get_jwt_identity, jwt_required
 from flask_redis import FlaskRedis
 from flask_sqlalchemy import SQLAlchemy
 
+
+load_dotenv()
 app = Flask(__name__)
 app.debug = True
 app.config['SECRET_KEY'] = 'secret key'
-app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user="postgres",
-                                                                                              pw="qwerty123",
-                                                                                              url="localhost",
-                                                                                              db="uniMarket")
+app.config['SQLALCHEMY_DATABASE_URI'] = 'postgresql+psycopg2://{user}:{pw}@{url}/{db}'.format(user=os.getenv('USER_DB'),
+                                                                                              pw=os.getenv('USER_PASSWORD'),
+                                                                                              url=os.getenv('DB_URL'),
+                                                                                              db=os.getenv('DB_NAME'))
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'
 app.config['JWT_ACCESS_TOKEN_EXPIRES'] = timedelta(seconds=10)
 app.config['JWT_REFRESH_TOKEN_EXPIRES'] = timedelta(days=30)

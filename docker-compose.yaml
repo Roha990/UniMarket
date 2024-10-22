@@ -1,7 +1,7 @@
 services:
   frontend:
     build:
-      context: ./um-front
+      context: u-front
     ports:
       - "8080:8080"
     depends_on:
@@ -9,7 +9,7 @@ services:
 
   backend:
     build:
-      context: ./um-back
+      context: u-back
     ports:
       - "5000:5000"
     environment:
