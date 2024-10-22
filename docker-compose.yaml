@@ -1,0 +1,40 @@
+services:
+  frontend:
+    build:
+      context: ./um-front
+    ports:
+      - "8080:8080"
+    depends_on:
+      - backend
+
+  backend:
+    build:
+      context: ./um-back
+    ports:
+      - "5000:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - HOST=0.0.0.0
+      - POSTGRES_HOST=localhost
+      - POSTGRES_PASSWORD=qwerty123
+      - POSTGRES_DB=uniMarket
+      - POSTGRES_USER=postgres
+    depends_on:
+      - db
+
+  db:
+    image: postgres:latest
+    restart: always
+    ports:
+      - "5432:5432"
+    environment:
+      - POSTGRES_PASSWORD=qwerty123
+      - POSTGRES_DB=uniMarket
+      - POSTGRES_USER=postgres
+    volumes:
+      - ./data:/var/lib/postgresql/data
+
+
+volumes:
+  postgres_data:
