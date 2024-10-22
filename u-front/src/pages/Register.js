@@ -13,7 +13,7 @@ const Register = () => {
     const handleSubmit = async (values) => {
         const { username, password } = values;
         try {
-            await login(username, password);
+            await register(username, password);
             history('/login');
         } catch (error) {
             setError(error.response?.data?.message || 'An error occurred');

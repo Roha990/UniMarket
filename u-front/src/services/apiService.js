@@ -4,7 +4,7 @@ import {jwtDecode} from 'jwt-decode';
 export const baseURL = 'http://localhost:5000';
 
 const api = axios.create({
-    baseURL: baseURL, // Замените на ваш API URL
+    baseURL: baseURL,
 });
 
 api.interceptors.request.use(
