@@ -1,5 +1,7 @@
 from flask import jsonify, request, current_app
 from flask_jwt_extended import create_access_token, create_refresh_token, get_jwt_identity
+
+from ..common import errorWrapper
 from ..models import User
 from ..extensions import db, redis_store
 
@@ -10,12 +12,13 @@ def register_user(data):
     role = "user"
 
     if not username or not password or not role:
-        return jsonify({"msg": "Missing username, password or role"}), 400
+        return errorWrapper("EMPTY_FIELDS")
 
     if User.query.filter_by(username=username).first():
-        return jsonify({"msg": "Username already exists"}), 400
+        return errorWrapper("USER_EXISTS")
 
-    new_user = User(username=username, password=password, role=role)
+    new_user = User(username=username, role=role)
+    new_user.set_password(password)
     db.session.add(new_user)
     db.session.commit()
 
@@ -28,8 +31,8 @@ def login_user(data):
 
     user = User.query.filter_by(username=username).first()
 
-    if not user or user.password != password:
-        return jsonify({"msg": "Invalid username or password"}), 401
+    if not user or not user.check_password(password):
+        return errorWrapper("INCORRECT_DATA")
 
     access_token = create_access_token(identity={'id': user.id, 'role': user.role})
     refresh_token = create_refresh_token(identity={'id': user.id, 'role': user.role})
@@ -45,7 +48,7 @@ def refresh_token():
     refresh_token = request.headers.get('Authorization').split()[1]
 
     if str(redis_store.get(f'refresh_token_{user_id}'))[2:-1] != refresh_token:
-        return jsonify({"msg": "Invalid refresh token"}), 401
+        return errorWrapper("INVALID_REFRESH_TOKEN")
 
     access_token = create_access_token(identity=identity)
     return jsonify(access_token=access_token), 200

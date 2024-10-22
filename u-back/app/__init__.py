@@ -1,7 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
 from dotenv import load_dotenv
-from .extensions import db, jwt, redis_store
+
+from .controllers import auth, project, user
+from .extensions import db, jwt, redis_store, migrate
 
 load_dotenv()
 
@@ -13,12 +15,13 @@ def create_app():
     db.init_app(app)
     jwt.init_app(app)
     redis_store.init_app(app)
+    migrate.init_app(app, db)
     CORS(app)
 
     with app.app_context():
-        from .controllers import auth, user
         app.register_blueprint(auth.bp)
         app.register_blueprint(user.bp)
+        app.register_blueprint(project.bp)
 
         db.create_all()
 

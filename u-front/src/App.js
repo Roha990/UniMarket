@@ -4,7 +4,7 @@ import router from './navigation.js';
 
 const App = () => {
   return (
-      <div>
+      <div style={{height: '100%'}}>
         <RouterProvider router={router}>
         </RouterProvider>
       </div>

@@ -1,6 +1,6 @@
 import React from 'react';
 import {Link, useNavigate} from 'react-router-dom';
-import {login, logout} from "../services/authService";
+import {logout} from "../services/authService";
 import {Breadcrumb} from "antd";
 
 const Navbar = () => {
@@ -10,7 +10,6 @@ const Navbar = () => {
         await logout();
         history('/login');
     };
-
 
     return (
     <Breadcrumb

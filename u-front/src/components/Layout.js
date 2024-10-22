@@ -2,17 +2,16 @@ import React from 'react';
 import { Outlet } from 'react-router-dom';
 import Navbar from "./Navbar";
 
-import { Breadcrumb, Layout, Menu, theme } from 'antd';
+import { Layout, theme } from 'antd';
 
-const { Header, Content, Footer } = Layout;
+const {Content, Footer } = Layout;
 
 const LayoutBase = () => {
     const {
         token: { colorBgContainer, borderRadiusLG },
     } = theme.useToken();
     return (
-        <Layout>
-
+        <Layout style={{height: '100%'}}>
             <Content style={{ padding: '0 48px' }}>
                 <Navbar></Navbar>
                 <div
@@ -21,6 +20,7 @@ const LayoutBase = () => {
                         minHeight: 280,
                         padding: 24,
                         borderRadius: borderRadiusLG,
+                        height: '100%'
                     }}
                 >
                     <Outlet></Outlet>
