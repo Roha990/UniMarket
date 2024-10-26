@@ -1,27 +1,35 @@
+version: '3.8'
+
 services:
   frontend:
     build:
       context: u-front
     ports:
       - "8080:8080"
+    volumes:
+      - ./u-front:/app
     depends_on:
       - backend
 
   backend:
     build:
       context: u-back
+    volumes:
+      - ./u-back:/app
     ports:
       - "5000:5000"
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
       - HOST=0.0.0.0
-      - POSTGRES_HOST=localhost
+      - POSTGRES_HOST=db
       - POSTGRES_PASSWORD=qwerty123
       - POSTGRES_DB=uniMarket
       - POSTGRES_USER=postgres
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - db
+      - redis
 
   db:
     image: postgres:latest
@@ -35,6 +43,8 @@ services:
     volumes:
       - ./data:/var/lib/postgresql/data
 
-
-volumes:
-  postgres_data:
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"

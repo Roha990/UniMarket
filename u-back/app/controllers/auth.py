@@ -8,19 +8,24 @@ bp = Blueprint('auth', __name__)
 routeGroup = getRouterGroupURL('/auth')
 
 
-@bp.route('/register', methods=['POST'])
+@bp.route(routeGroup + '/register', methods=['POST'])
 def register():
     data = request.get_json()
     return register_user(data)
 
 
-@bp.route('/login', methods=['POST'])
+@bp.route(routeGroup + '/test', methods=['GET'])
+def test():
+    return "1234"
+
+
+@bp.route(routeGroup + '/login', methods=['POST'])
 def login():
     data = request.get_json()
     return login_user(data)
 
 
-@bp.route('/refresh', methods=['POST'])
+@bp.route(routeGroup + '/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
     return refresh_token()

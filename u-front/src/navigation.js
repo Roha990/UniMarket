@@ -6,6 +6,8 @@ import Home from "./pages/Home";
 import LayoutBase from "./components/Layout";
 import ProtectedComponent from "./pages/ProtectedRoute";
 import Register from "./pages/Register";
+import UserProfile from "./pages/ProtectedRoute";
+import UsersList from "./pages/AdminUsers";
 
 const router = createBrowserRouter([
     {
@@ -26,11 +28,15 @@ const router = createBrowserRouter([
             },
             {
                 path: "/profile",
-                element: <ProtectedComponent />,
+                element: <UserProfile />,
             },
             {
                 path: "/logout",
                 element: <ProtectedComponent />,
+            },
+            {
+                path: "/users",
+                element: <UsersList />,
             },
         ],
     },

@@ -1,21 +1,25 @@
 import React, { useEffect, useState } from 'react';
+import { Card, Avatar, Typography, Table, Skeleton } from 'antd';
 import api from '../services/apiService';
+import { UserOutlined } from '@ant-design/icons';
 
-const ProtectedComponent = () => {
+const { Title, Text } = Typography;
+
+const UserProfile = () => {
     const [data, setData] = useState(null);
     const [error, setError] = useState(null);
 
     useEffect(() => {
-        const fetchProtectedData = async () => {
+        const fetchUserData = async () => {
             try {
-                const response = await api.get('/protected');
+                const response = await api.get('/user');
                 setData(response.data);
             } catch (error) {
                 setError(error.message);
             }
         };
 
-        fetchProtectedData();
+        fetchUserData();
     }, []);
 
     if (error) {
@@ -23,15 +27,64 @@ const ProtectedComponent = () => {
     }
 
     if (!data) {
-        return <div>Loading...</div>;
+        return <Skeleton active />;
     }
 
+    const columns = [
+        {
+            title: 'Field',
+            dataIndex: 'field',
+            key: 'field',
+        },
+        {
+            title: 'Value',
+            dataIndex: 'value',
+            key: 'value',
+        },
+    ];
+
+    const dataSource = [
+        {
+            key: '1',
+            field: 'Email',
+            value: data.email,
+        },
+        {
+            key: '2',
+            field: 'Phone Number',
+            value: data.phone_number,
+        },
+        {
+            key: '3',
+            field: 'Rating',
+            value: data.rating,
+        },
+        {
+            key: '4',
+            field: 'Description',
+            value: data.description,
+        },
+    ];
+
     return (
-        <div>
-            <h1>Protected Data</h1>
-            <pre>{JSON.stringify(data, null, 2)}</pre>
-        </div>
+        <Card style={{ width: '100%' }}>
+            <div style={{ display: 'flex', alignItems: 'center' }}>
+                <Avatar size={64} icon={<UserOutlined />} />
+                <div style={{ marginLeft: 16 }}>
+                    <Title level={4}>{data.username}</Title>
+                    <Text>{data.full_name}</Text>
+                    <br />
+                    <Text>{data.role}</Text>
+                </div>
+            </div>
+            <Table
+                dataSource={dataSource}
+                columns={columns}
+                pagination={false}
+                style={{ marginTop: 24 }}
+            />
+        </Card>
     );
 };
 
-export default ProtectedComponent;
+export default UserProfile;

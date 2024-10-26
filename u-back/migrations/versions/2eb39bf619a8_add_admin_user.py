@@ -5,7 +5,7 @@ from werkzeug.security import generate_password_hash
 
 # revision identifiers, used by Alembic.
 revision = '2eb39bf619a8'
-down_revision = '4ee129e1f46d'
+down_revision = None
 branch_labels = None
 depends_on = None
 

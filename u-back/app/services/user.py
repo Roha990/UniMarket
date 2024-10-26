@@ -13,12 +13,17 @@ def get_user_info(user_id):
     return jsonify({
         "id": user.id,
         "username": user.username,
-        "role": user.role
+        "role": user.role,
+        "description": user.description,
+        "rating": user.rating,
+        "phone_number": user.phone_number,
+        "full_name": user.full_name,
+        "email": user.email,
     }), 200
 
 
 def get_users(page):
-    users = User.query.paginate(page, 10, False)
+    users = User.query.paginate(page=page, per_page=10, error_out=False)
     total_elements = users.total
 
     return pageWrapper([{

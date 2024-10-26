@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
-export const baseURL = 'http://localhost:5000';
+export const baseURL = 'http://localhost:5000/api';
 
 const api = axios.create({
     baseURL: baseURL,
@@ -42,7 +42,7 @@ api.interceptors.response.use(
 
                 if (decodedToken.exp < currentTime) {
                     try {
-                        const response = await axios.post(`${baseURL}/refresh`, { refreshToken }, {
+                        const response = await axios.post(`${baseURL}/auth/refresh`, { refreshToken }, {
                             headers: {'Authorization': `Bearer ${refreshToken}`}
                         });
                         const newAccessToken = response.data['access_token'];
