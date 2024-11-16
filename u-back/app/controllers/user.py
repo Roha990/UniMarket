@@ -6,16 +6,15 @@ from ..services.user import get_user_info, update_user_info, delete_user, get_us
 bp = Blueprint('user', __name__)
 routeGroup = getRouterGroupURL('/user')
 
-@bp.route(routeGroup, methods=['GET'])
-@jwt_required()
-def get_user():
-    user_id = get_jwt_identity()['id']
+@bp.route(routeGroup + "/<int:user_id>", methods=['GET'])
+def get_user(user_id):
     return get_user_info(user_id)
 
-@bp.route(routeGroup, methods=['PUT'])
+@bp.route(routeGroup + "/<int:user_id>", methods=['PUT'])
 @jwt_required()
-def update_user():
-    user_id = get_jwt_identity()['id']
+def update_user(user_id):
+    if get_jwt_identity()['role'] != 'admin' and user_id!=get_jwt_identity()['id']:
+        return {'message': 'Access denied'}, 403
     data = request.get_json()
     return update_user_info(user_id, data)
 

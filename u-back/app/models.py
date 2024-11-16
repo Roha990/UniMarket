@@ -18,13 +18,13 @@ class User(db.Model):
     role = db.Column(db.String(50), nullable=False)
 
     projects = relationship('Project', secondary='user_project', back_populates='users')
+    skills = relationship('Skill', secondary='user_skill', back_populates='users')
 
     def set_password(self, password):
         self.password = generate_password_hash(password)
 
     def check_password(self, password):
         return check_password_hash(self.password, password)
-
 
 class Project(db.Model):
     __tablename__ = 'projects'
@@ -36,6 +36,28 @@ class Project(db.Model):
 
     users = relationship('User', secondary='user_project', back_populates='projects')
     creator = relationship('User', foreign_keys=[creator_id])
+    skills = relationship('Skill', secondary='project_skill', back_populates='projects')
+
+class Skill(db.Model):
+    __tablename__ = 'skills'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+
+    users = relationship('User', secondary='user_skill', back_populates='skills')
+    projects = relationship('Project', secondary='project_skill', back_populates='skills')
+
+class UserSkill(db.Model):
+    __tablename__ = 'user_skill'
+
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
+    skill_id = db.Column(db.Integer, db.ForeignKey('skills.id'), primary_key=True)
+
+class ProjectSkill(db.Model):
+    __tablename__ = 'project_skill'
+
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), primary_key=True)
+    skill_id = db.Column(db.Integer, db.ForeignKey('skills.id'), primary_key=True)
 
 
 class UserProject(db.Model):

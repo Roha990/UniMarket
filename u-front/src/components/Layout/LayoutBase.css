@@ -1,0 +1,15 @@
+/* LayoutBase.css */
+.layout-base {
+    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
+}
+
+.footer-row {
+    background-color: #ffffff; /* Убедитесь, что фон футера остается белым */
+    border-top: 1px solid #e0e0e0; /* Добавляем верхнюю границу для футера */
+}
+
+.footer-row .text-center {
+    padding: 10px 0;
+    font-size: 0.9rem;
+    color: #6c757d;
+}

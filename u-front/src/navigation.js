@@ -2,12 +2,12 @@ import {
     createBrowserRouter,
 } from "react-router-dom";
 import Login from "./pages/Login";
-import Home from "./pages/Home";
-import LayoutBase from "./components/Layout";
-import ProtectedComponent from "./pages/ProtectedRoute";
+import Home from "./pages/home/Home";
+import LayoutBase from "./components/Layout/Layout";
 import Register from "./pages/Register";
-import UserProfile from "./pages/ProtectedRoute";
+import UserProfile from "./pages/UserProfile";
 import UsersList from "./pages/AdminUsers";
+import EditUserProfile from "./pages/EditUserProfile";
 
 const router = createBrowserRouter([
     {
@@ -27,12 +27,16 @@ const router = createBrowserRouter([
                 element: <Register />,
             },
             {
-                path: "/profile",
+                path: "/user/:userId",
                 element: <UserProfile />,
+            },
+                        {
+                path: "/user/:userId/edit-profile",
+                element: <EditUserProfile />,
             },
             {
                 path: "/logout",
-                element: <ProtectedComponent />,
+                element: <Home />,
             },
             {
                 path: "/users",

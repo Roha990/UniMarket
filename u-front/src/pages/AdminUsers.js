@@ -1,14 +1,14 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Skeleton } from 'antd';
+import { Table, Container, Row, Col, Spinner, Pagination } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
 import api from '../services/apiService';
 import { jwtDecode } from 'jwt-decode';
 
 const UsersList = () => {
-    const [data, setData] = useState(null);
+    const [data, setData] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
-    const [pagination, setPagination] = useState({ page: 1, totalElements: 0 });
+    const [pagination, setPagination] = useState({ page: 1, totalElements: 0, totalPages: 0 });
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -19,6 +19,7 @@ const UsersList = () => {
                 setPagination({
                     page: response.data.pagination.page,
                     totalElements: response.data.pagination.totalElements,
+                    totalPages: Math.ceil(response.data.pagination.totalElements / 10), // Assuming 10 items per page
                 });
                 setLoading(false);
             } catch (error) {
@@ -42,65 +43,102 @@ const UsersList = () => {
         }
     }, [pagination.page]);
 
-    const handleTableChange = (pagination) => {
-        setPagination({ ...pagination, page: pagination});
+    const handleTableChange = (newPage) => {
+        setPagination((prevPagination) => ({ ...prevPagination, page: newPage }));
     };
 
     const handleRowClick = (record) => {
-        navigate(`/${record.id}/profile`);
+        navigate(`/user/${record.id}`);
     };
 
-    const columns = [
-        {
-            title: 'Username',
-            dataIndex: 'username',
-            key: 'username',
-        },
-        {
-            title: 'Full Name',
-            dataIndex: 'full_name',
-            key: 'full_name',
-        },
-        {
-            title: 'Email',
-            dataIndex: 'email',
-            key: 'email',
-        },
-        {
-            title: 'Phone Number',
-            dataIndex: 'phone_number',
-            key: 'phone_number',
-        },
-        {
-            title: 'Role',
-            dataIndex: 'role',
-            key: 'role',
-        },
-    ];
+    const renderPaginationItems = () => {
+        const items = [];
+        const { page, totalPages } = pagination;
+
+        items.push(<Pagination.First key="first" onClick={() => handleTableChange(1)} />);
+        items.push(<Pagination.Prev key="prev" onClick={() => handleTableChange(page - 1)} disabled={page === 1} />);
+
+        if (page > 3) {
+            items.push(<Pagination.Item key={1} onClick={() => handleTableChange(1)}>{1}</Pagination.Item>);
+            if (page > 4) {
+                items.push(<Pagination.Ellipsis key="ellipsis-start" />);
+            }
+        }
+
+        for (let p = Math.max(2, page - 2); p <= Math.min(totalPages - 1, page + 2); p++) {
+            items.push(
+                <Pagination.Item key={p} active={p === page} onClick={() => handleTableChange(p)}>
+                    {p}
+                </Pagination.Item>
+            );
+        }
+
+        if (page < totalPages - 3) {
+            if (page < totalPages - 2) {
+                items.push(<Pagination.Ellipsis key="ellipsis-end" />);
+            }
+            items.push(<Pagination.Item key={totalPages} onClick={() => handleTableChange(totalPages)}>{totalPages}</Pagination.Item>);
+        }
+
+        items.push(<Pagination.Next key="next" onClick={() => handleTableChange(page + 1)} disabled={page === totalPages} />);
+        items.push(<Pagination.Last key="last" onClick={() => handleTableChange(totalPages)} />);
+
+        return items;
+    };
 
     if (error) {
         return <div>Error: {error}</div>;
     }
 
     if (loading) {
-        return <Skeleton active />;
+        return (
+            <Container className="d-flex justify-content-center align-items-center" style={{ height: '100vh' }}>
+                <Spinner animation="border" role="status">
+                    <span className="visually-hidden">Loading...</span>
+                </Spinner>
+            </Container>
+        );
     }
 
     return (
-        <Table
-            dataSource={data}
-            columns={columns}
-            pagination={{
-                current: pagination.page,
-                total: pagination.totalElements,
-                pageSize: 10,
-                onChange: handleTableChange,
-            }}
-            rowKey="id"
-            onRow={(record) => ({
-                onClick: () => handleRowClick(record),
-            })}
-        />
+        <Container>
+            <Row className="mb-3">
+                <Col>
+                    <h2>Таблица пользователей</h2>
+                </Col>
+            </Row>
+            <Row>
+                <Col>
+                    <Table striped bordered hover>
+                        <thead>
+                            <tr>
+                                <th>Username</th>
+                                <th>Full Name</th>
+                                <th>Email</th>
+                                <th>Phone Number</th>
+                                <th>Role</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {data.map((user) => (
+                                <tr key={user.id} onClick={() => handleRowClick(user)} style={{ cursor: 'pointer' }}>
+                                    <td>{user.username}</td>
+                                    <td>{user.full_name}</td>
+                                    <td>{user.email}</td>
+                                    <td>{user.phone_number}</td>
+                                    <td>{user.role}</td>
+                                </tr>
+                            ))}
+                        </tbody>
+                    </Table>
+                </Col>
+            </Row>
+            <Row className="justify-content-center mt-3">
+                <Col xs="auto">
+                    <Pagination>{renderPaginationItems()}</Pagination>
+                </Col>
+            </Row>
+        </Container>
     );
 };
 
