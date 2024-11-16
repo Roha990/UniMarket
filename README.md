@@ -16,7 +16,8 @@
 - **Frontend**:
   - React
   - Yarn
-  - Ant Design
+  - Axios
+  - Bootstrap
 
 - **DevOps**:
   - Docker
