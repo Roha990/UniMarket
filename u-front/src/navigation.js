@@ -8,6 +8,8 @@ import Register from "./pages/Register";
 import UserProfile from "./pages/UserProfile";
 import UsersList from "./pages/AdminUsers";
 import EditUserProfile from "./pages/EditUserProfile";
+import CreateProject from "./pages/CreateProject";
+import ProjectsList from "./pages/ProjectsList";
 
 const router = createBrowserRouter([
     {
@@ -34,6 +36,10 @@ const router = createBrowserRouter([
                 path: "/user/:userId/edit-profile",
                 element: <EditUserProfile />,
             },
+                        {
+                path: "/create-project",
+                element: <CreateProject />,
+            },
             {
                 path: "/logout",
                 element: <Home />,
@@ -41,6 +47,10 @@ const router = createBrowserRouter([
             {
                 path: "/users",
                 element: <UsersList />,
+            },
+                        {
+                path: "/projects",
+                element: <ProjectsList />,
             },
         ],
     },

@@ -35,6 +35,7 @@ const NavbarComponent = () => {
                         {isAdmin && (
                             <Nav.Link as={Link} to="/users">Пользователи</Nav.Link>
                         )}
+                        <Nav.Link as={Link} to="/projects">Проекты</Nav.Link>
                         {isAuthenticated && (
                             <>
                                 <Nav.Link as={Link} to={`/user/${decodedToken.sub.id}`}>Мой профиль</Nav.Link>

@@ -1,32 +1,46 @@
 from flask import jsonify, request
 
 from ..common import pageWrapper
-from ..models import Project, Invitation, User, UserProject
+from ..models import Project, Invitation, User, UserProject, Skill, ProjectSkill
 from ..extensions import db
 
 
-def create_project(data):
+def create_project(data, creator_id):
     title = data.get('title')
     description = data.get('description')
+    skills = data.get('skills', [])
 
     if not title or not description:
         return jsonify({"msg": "Missing title or description"}), 400
 
-    new_project = Project(title=title, description=description)
+    new_project = Project(title=title, description=description, creator_id=creator_id)
     db.session.add(new_project)
+    db.session.commit()
+
+    # Добавляем навыки к проекту
+    for skill_name in skills:
+        skill = Skill.query.filter_by(name=skill_name).first()
+        if not skill:
+            skill = Skill(name=skill_name)
+            db.session.add(skill)
+            db.session.commit()
+        project_skill = ProjectSkill(project_id=new_project.id, skill_id=skill.id)
+        db.session.add(project_skill)
+
     db.session.commit()
 
     return jsonify({"msg": "Project created successfully"}), 201
 
 
 def get_projects(page):
-    projects = Project.query.paginate(page, 10, False)
+    projects = Project.query.paginate(page=page, per_page=10, error_out=False)
     total_elements = projects.total
 
     return pageWrapper([{
         "id": project.id,
         "title": project.title,
-        "description": project.description
+        "description": project.description,
+        "skills": [skill.name for skill in project.skills],
     } for project in projects.items], page, total_elements)
 
 

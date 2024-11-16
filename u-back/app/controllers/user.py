@@ -27,8 +27,6 @@ def delete_user_route():
 @bp.route(routeGroup + '/users', methods=['GET'])
 @jwt_required()
 def get_all_users():
-    current_user_id = get_jwt_identity()['id']
-
     if get_jwt_identity()['role'] != 'admin':
         return {'message': 'Access denied'}, 403
 
