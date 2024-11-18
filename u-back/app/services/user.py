@@ -34,6 +34,7 @@ def get_users(page):
         "rating": user.rating,
         "description": user.description,
         "email": user.email,
+        "role": user.role,
         "phone_number": user.phone_number,
     } for user in users.items], page, total_elements)
 

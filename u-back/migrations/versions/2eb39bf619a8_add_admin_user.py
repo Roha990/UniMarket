@@ -26,7 +26,7 @@ user_table = table('users',
 def add_admin_user():
     hashed_password = generate_password_hash('admin')
     op.bulk_insert(user_table, [
-        {'username': 'admin', 'full_name': 'Admin User', 'password': hashed_password, 'rating': 5.0,
+        {'username': 'admin', 'full_name': 'Admin User', 'password': hashed_password, 'rating': 0,
          'description': 'Admin user', 'email': 'admin@example.com', 'phone_number': '1234567890', 'role': 'admin'}
     ])
 

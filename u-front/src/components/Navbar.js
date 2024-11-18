@@ -3,8 +3,10 @@ import { Link, useNavigate } from 'react-router-dom';
 import Container from 'react-bootstrap/Container';
 import Nav from 'react-bootstrap/Nav';
 import Navbar from 'react-bootstrap/Navbar';
+import NavDropdown from 'react-bootstrap/NavDropdown';
 import { logout } from "../services/authService";
 import { jwtDecode } from 'jwt-decode';
+import {BsPersonCircle} from 'react-icons/bs';
 
 const NavbarComponent = () => {
     const history = useNavigate();
@@ -32,23 +34,26 @@ const NavbarComponent = () => {
                 <Navbar.Toggle aria-controls="basic-navbar-nav" />
                 <Navbar.Collapse id="basic-navbar-nav">
                     <Nav className="me-auto">
-                        {isAdmin && (
-                            <Nav.Link as={Link} to="/users">Пользователи</Nav.Link>
-                        )}
                         <Nav.Link as={Link} to="/projects">Проекты</Nav.Link>
-                        {isAuthenticated && (
-                            <>
-                                <Nav.Link as={Link} to={`/user/${decodedToken.sub.id}`}>Мой профиль</Nav.Link>
-                            </>
-                        )}
                     </Nav>
                     <Nav className="ms-auto">
-                        {isAuthenticated ? (
-                            <Nav.Link onClick={logoutSubmit}>Выйти из учетной записи</Nav.Link>
-                        ) : (
-                            <>
-                                <Nav.Link as={Link} to="/login">Войти</Nav.Link>
-                            </>
+                        {isAdmin && (
+                            <Nav.Link as={Link} to="/admin">Админ-панель</Nav.Link>
+                        )}
+                        {isAuthenticated && (
+                            <NavDropdown title={
+                                <>
+                                    <BsPersonCircle/>
+                                     {` ${decodedToken.sub.full_name}`}
+                                </>
+                            } id="basic-nav-dropdown">
+                                <NavDropdown.Item as={Link} to={`/user/${decodedToken.sub.id}`}>Мой профиль</NavDropdown.Item>
+                                <NavDropdown.Divider />
+                                <NavDropdown.Item onClick={logoutSubmit}> Выйти из учетной записи</NavDropdown.Item>
+                            </NavDropdown>
+                        )}
+                        {!isAuthenticated && (
+                            <Nav.Link as={Link} to="/login">Войти</Nav.Link>
                         )}
                     </Nav>
                 </Navbar.Collapse>

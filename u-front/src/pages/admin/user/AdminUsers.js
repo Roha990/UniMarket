@@ -1,14 +1,17 @@
 import React, { useEffect, useState } from 'react';
-import { Table, Container, Row, Col, Spinner, Pagination } from 'react-bootstrap';
+import { Table, Container, Row, Col, Spinner, Pagination, Button, Modal } from 'react-bootstrap';
 import { useNavigate } from 'react-router-dom';
-import api from '../services/apiService';
+import api from '../../../services/apiService';
 import { jwtDecode } from 'jwt-decode';
+import EditUserProfile from '../../EditUserProfile'; // Import the EditUserProfile component
 
 const UsersList = () => {
     const [data, setData] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [pagination, setPagination] = useState({ page: 1, totalElements: 0, totalPages: 0 });
+    const [showModal, setShowModal] = useState(false);
+    const [userToEdit, setUserToEdit] = useState(null);
     const navigate = useNavigate();
 
     useEffect(() => {
@@ -49,6 +52,16 @@ const UsersList = () => {
 
     const handleRowClick = (record) => {
         navigate(`/user/${record.id}`);
+    };
+
+    const handleEditClick = (user) => {
+        setUserToEdit(user);
+        setShowModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowModal(false);
+        setUserToEdit(null);
     };
 
     const renderPaginationItems = () => {
@@ -117,6 +130,7 @@ const UsersList = () => {
                                 <th>Email</th>
                                 <th>Phone Number</th>
                                 <th>Role</th>
+                                <th>Actions</th>
                             </tr>
                         </thead>
                         <tbody>
@@ -127,6 +141,11 @@ const UsersList = () => {
                                     <td>{user.email}</td>
                                     <td>{user.phone_number}</td>
                                     <td>{user.role}</td>
+                                    <td>
+                                        <Button variant="primary" onClick={(e) => { e.stopPropagation(); handleEditClick(user); }}>
+                                            Edit
+                                        </Button>
+                                    </td>
                                 </tr>
                             ))}
                         </tbody>
@@ -138,6 +157,14 @@ const UsersList = () => {
                     <Pagination>{renderPaginationItems()}</Pagination>
                 </Col>
             </Row>
+            <Modal show={showModal} onHide={handleCloseModal} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Edit User Profile</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    {userToEdit && <EditUserProfile user={userToEdit} onClose={handleCloseModal} />}
+                </Modal.Body>
+            </Modal>
         </Container>
     );
 };

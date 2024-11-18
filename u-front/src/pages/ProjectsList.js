@@ -1,7 +1,9 @@
 import React, { useEffect, useState } from 'react';
-import { Container, Row, Col, Spinner, Button, Form } from 'react-bootstrap';
+import { Container, Row, Col, Spinner, Button, Form, Card } from 'react-bootstrap';
 import api from '../services/apiService';
 import { useNavigate } from 'react-router-dom';
+import Select from 'react-select';
+import './ProjectsList.css'; // Import custom CSS
 
 const ProjectsList = () => {
     const [projects, setProjects] = useState([]);
@@ -28,7 +30,10 @@ const ProjectsList = () => {
         const fetchSkills = async () => {
             try {
                 const response = await api.get('/skills');
-                setAllSkills(response.data.skills);
+                setAllSkills(response.data.skills.map(skill => ({
+                    value: skill.id,
+                    label: skill.name
+                })));
             } catch (error) {
                 setError(error.message);
             }
@@ -38,30 +43,6 @@ const ProjectsList = () => {
         fetchSkills();
     }, []);
 
-    useEffect(() => {
-        applyFilters();
-    }, [filters]);
-
-    const applyFilters = () => {
-        let filtered = projects;
-
-        if (filters.direction) {
-            filtered = filtered.filter(project => project.direction === filters.direction);
-        }
-
-        if (filters.skills.length > 0) {
-            filtered = filtered.filter(project =>
-                filters.skills.every(skill => project.skills.includes(skill))
-            );
-        }
-
-        if (filters.status) {
-            filtered = filtered.filter(project => project.status === filters.status);
-        }
-
-        setFilteredProjects(filtered);
-    };
-
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
         setFilters(prevFilters => ({
@@ -70,15 +51,26 @@ const ProjectsList = () => {
         }));
     };
 
-    const handleSkillChange = (e) => {
-        const { options } = e.target;
-        const selectedSkills = Array.from(options)
-            .filter(option => option.selected)
-            .map(option => option.value);
+    const handleSkillChange = (selectedOptions) => {
         setFilters(prevFilters => ({
             ...prevFilters,
-            skills: selectedSkills
+            skills: selectedOptions.map(option => option.value)
         }));
+    };
+
+    const handleFilterSubmit = async () => {
+        try {
+            const response = await api.get('/project/list', {
+                params: {
+                    direction: filters.direction,
+                    skills: filters.skills.join(','),
+                    status: filters.status
+                }
+            });
+            setFilteredProjects(response.data.items);
+        } catch (error) {
+            setError(error.message);
+        }
     };
 
     const handleCreateProject = () => {
@@ -124,13 +116,15 @@ const ProjectsList = () => {
                         </Form.Group>
                         <Form.Group controlId="formSkills">
                             <Form.Label>Навыки</Form.Label>
-                            <Form.Control as="select" multiple name="skills" onChange={handleSkillChange}>
-                                {allSkills.map(skill => (
-                                    <option key={skill.id} value={skill.name}>
-                                        {skill.name}
-                                    </option>
-                                ))}
-                            </Form.Control>
+                            <Select
+                                isMulti
+                                options={allSkills}
+                                value={filters.skills.map(skill => ({
+                                    value: skill,
+                                    label: allSkills.find(s => s.value === skill).label
+                                }))}
+                                onChange={handleSkillChange}
+                            />
                         </Form.Group>
                         <Form.Group controlId="formStatus">
                             <Form.Label>Статус</Form.Label>
@@ -140,16 +134,21 @@ const ProjectsList = () => {
                                 <option value="completed">Завершенные</option>
                             </Form.Control>
                         </Form.Group>
+                        <Button variant="primary" onClick={handleFilterSubmit}>
+                            Отфильтровать
+                        </Button>
                     </Form>
                 </Col>
                 <Col md={9}>
                     {filteredProjects.map(project => (
-                        <div key={project.id} className="project-card p-3 mb-3 border rounded">
-                            <h3>{project.title}</h3>
-                            <p>{project.description}</p>
-                            <p><strong>Навыки:</strong> {project.skills.join(', ')}</p>
-                            <Button variant="success">Подать заявку</Button>
-                        </div>
+                        <Card key={project.id} className="project-card mb-3">
+                            <Card.Body>
+                                <Card.Title>{project.title}</Card.Title>
+                                <Card.Text>{project.description}</Card.Text>
+                                <Card.Text><strong>Навыки:</strong> {project.skills.join(', ')}</Card.Text>
+                                <Button variant="success">Подать заявку</Button>
+                            </Card.Body>
+                        </Card>
                     ))}
                 </Col>
             </Row>

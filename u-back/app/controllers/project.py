@@ -15,10 +15,12 @@ def create_project_route():
 
 
 @bp.route(routeGroup + '/list', methods=['GET'])
-@jwt_required()
 def get_projects_route():
     page = request.args.get('page', 1, type=int)
-    return get_projects(page)
+    direction = request.args.get('direction', None)
+    skills = request.args.get('skills', '').split(',')
+    status = request.args.get('status', '')
+    return get_projects(page, direction, skills, status)
 
 
 @bp.route('/projects/<int:project_id>', methods=['GET'])

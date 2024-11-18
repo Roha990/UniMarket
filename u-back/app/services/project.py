@@ -17,7 +17,6 @@ def create_project(data, creator_id):
     db.session.add(new_project)
     db.session.commit()
 
-    # Добавляем навыки к проекту
     for skill_name in skills:
         skill = Skill.query.filter_by(name=skill_name).first()
         if not skill:
@@ -32,8 +31,19 @@ def create_project(data, creator_id):
     return jsonify({"msg": "Project created successfully"}), 201
 
 
-def get_projects(page):
-    projects = Project.query.paginate(page=page, per_page=10, error_out=False)
+def get_projects(page, direction, skills, status):
+    query = Project.query
+
+    if direction:
+        query = query.filter(Project.direction == direction)
+
+    if skills[0]:
+        query = query.join(Project.skills).filter(Skill.id.in_(skills))
+
+    if status:
+        query = query.filter(Project.status == status)
+
+    projects = query.paginate(page=page, per_page=10, error_out=False)
     total_elements = projects.total
 
     return pageWrapper([{

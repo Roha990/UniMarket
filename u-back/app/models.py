@@ -1,5 +1,5 @@
 from werkzeug.security import generate_password_hash, check_password_hash
-
+from datetime import datetime
 from .extensions import db
 from sqlalchemy.orm import relationship
 
@@ -16,6 +16,7 @@ class User(db.Model):
     email = db.Column(db.String(120), unique=True, nullable=True)
     phone_number = db.Column(db.String(20), nullable=True)
     role = db.Column(db.String(50), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     projects = relationship('Project', secondary='user_project', back_populates='users')
     skills = relationship('Skill', secondary='user_skill', back_populates='users')
@@ -33,10 +34,29 @@ class Project(db.Model):
     title = db.Column(db.String(120), nullable=False)
     description = db.Column(db.Text, nullable=False)
     creator_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+    direction_id = db.Column(db.Integer, db.ForeignKey('directions.id'))
+    status = db.Column(db.String(50),default='active')
 
     users = relationship('User', secondary='user_project', back_populates='projects')
     creator = relationship('User', foreign_keys=[creator_id])
     skills = relationship('Skill', secondary='project_skill', back_populates='projects')
+    directions = relationship('Direction', secondary='project_direction', back_populates='projects')
+
+class ProjectDirection(db.Model):
+    __tablename__ = 'project_direction'
+
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), primary_key=True)
+    direction_id = db.Column(db.Integer, db.ForeignKey('directions.id'), primary_key=True)
+
+class Direction(db.Model):
+    __tablename__ = 'directions'
+
+    id = db.Column(db.Integer, primary_key=True)
+    name = db.Column(db.String(120), unique=True, nullable=False)
+
+    projects = relationship('Project', secondary='project_direction', back_populates='directions')
+
 
 class Skill(db.Model):
     __tablename__ = 'skills'
@@ -74,6 +94,7 @@ class Invitation(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='pending')
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     project = relationship('Project', backref='invitations')
     user = relationship('User', backref='invitations')

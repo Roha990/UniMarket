@@ -1,0 +1,40 @@
+.user-profile-container {
+    padding-top: 20px;
+}
+
+.user-profile-title {
+    font-size: 24px;
+    font-weight: bold;
+    text-align: center;
+}
+
+.user-profile-card {
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    border-radius: 10px;
+    overflow: hidden;
+    padding: 20px;
+}
+
+.user-profile-header {
+    display: flex;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.user-profile-icon {
+    font-size: 64px;
+    margin-right: 16px;
+}
+
+.user-profile-info {
+    flex: 1;
+}
+
+.user-profile-skills {
+    margin-top: 10px;
+}
+
+.edit-profile-button {
+    margin-top: 20px;
+    width: 100%;
+}
