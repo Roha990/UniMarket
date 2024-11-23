@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Spinner } from 'react-bootstrap';
-import api from '../services/apiService';
+import api from '../../services/apiService';
 import Select from 'react-select';
 
 const CreateProject = () => {

@@ -13,7 +13,7 @@ const NavbarComponent = () => {
     const isAuthenticated = !!localStorage.getItem('accessToken');
     const token = localStorage.getItem('accessToken');
     const decodedToken = token ? jwtDecode(token) : null;
-    const isAdmin = decodedToken && decodedToken.sub.role === 'admin';
+    const isAdmin = decodedToken && decodedToken.user.role === 'admin';
 
     const logoutSubmit = async () => {
         await logout();
@@ -38,16 +38,17 @@ const NavbarComponent = () => {
                     </Nav>
                     <Nav className="ms-auto">
                         {isAdmin && (
-                            <Nav.Link as={Link} to="/admin">Админ-панель</Nav.Link>
+                            <Nav.Link as={Link} to="/admin/users">Админ-панель</Nav.Link>
                         )}
                         {isAuthenticated && (
                             <NavDropdown title={
                                 <>
                                     <BsPersonCircle/>
-                                     {` ${decodedToken.sub.full_name}`}
+                                     {` ${decodedToken.user.full_name}`}
                                 </>
                             } id="basic-nav-dropdown">
-                                <NavDropdown.Item as={Link} to={`/user/${decodedToken.sub.id}`}>Мой профиль</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to={`/user/${decodedToken.sub}/profile`}>Мой профиль</NavDropdown.Item>
+                                <NavDropdown.Item as={Link} to="/invitations">Приглашения</NavDropdown.Item>
                                 <NavDropdown.Divider />
                                 <NavDropdown.Item onClick={logoutSubmit}> Выйти из учетной записи</NavDropdown.Item>
                             </NavDropdown>

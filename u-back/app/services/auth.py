@@ -34,8 +34,17 @@ def login_user(data):
     if not user or not user.check_password(password):
         return errorWrapper("INCORRECT_DATA")
 
-    access_token = create_access_token(identity={'id': user.id, 'role': user.role, 'full_name':user.full_name})
-    refresh_token = create_refresh_token(identity={'id': user.id, 'role': user.role,'full_name':user.full_name})
+
+    user_identity = str(user.id)
+    additional_claims = {
+        'user':{
+            'role': user.role,
+            'full_name': user.full_name
+        }
+    }
+    access_token = create_access_token(identity=user_identity, additional_claims=additional_claims)
+    refresh_token = create_refresh_token(identity=user_identity, additional_claims=additional_claims)
+
 
     redis_store.set(f'refresh_token_{user.id}', refresh_token, ex=current_app.config['JWT_REFRESH_TOKEN_EXPIRES'])
 
@@ -44,7 +53,7 @@ def login_user(data):
 
 def refresh_token():
     identity = get_jwt_identity()
-    user_id = identity['id']
+    user_id = identity
     refresh_token = request.headers.get('Authorization').split()[1]
 
     if str(redis_store.get(f'refresh_token_{user_id}'))[2:-1] != refresh_token:

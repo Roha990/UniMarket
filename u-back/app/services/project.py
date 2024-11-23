@@ -1,4 +1,5 @@
 from flask import jsonify, request
+from sqlalchemy import desc
 
 from ..common import pageWrapper
 from ..models import Project, Invitation, User, UserProject, Skill, ProjectSkill
@@ -27,6 +28,9 @@ def create_project(data, creator_id):
         db.session.add(project_skill)
 
     db.session.commit()
+    user_project = UserProject(user_id=creator_id, project_id=new_project.id)
+    db.session.add(user_project)
+    db.session.commit()
 
     return jsonify({"msg": "Project created successfully"}), 201
 
@@ -43,6 +47,8 @@ def get_projects(page, direction, skills, status):
     if status:
         query = query.filter(Project.status == status)
 
+    query = query.order_by(desc(Project.created_at))
+
     projects = query.paginate(page=page, per_page=10, error_out=False)
     total_elements = projects.total
 
@@ -51,6 +57,7 @@ def get_projects(page, direction, skills, status):
         "title": project.title,
         "description": project.description,
         "skills": [skill.name for skill in project.skills],
+        "created_at": project.created_at,
     } for project in projects.items], page, total_elements)
 
 
@@ -62,7 +69,11 @@ def get_project(project_id):
     return jsonify({
         "id": project.id,
         "title": project.title,
-        "description": project.description
+        "description": project.description,
+        "skills": [skill.name for skill in project.skills],
+        "created_at": project.created_at,
+        "creator_id": project.creator_id,
+        "users": [user.username for user in project.users],
     }), 200
 
 
@@ -95,51 +106,50 @@ def delete_project(project_id):
     return jsonify({"msg": "Project deleted successfully"}), 200
 
 
-def invite_user(project_id, data, created_project_id):
+def invite_user(project_id, current_user_id, data):
     user_id = data.get('user_id')
-    project = Project.query.get(project_id)
 
-    if not project or project.creator_id != created_project_id:
-        return jsonify({"msg": "Project not found or you are not the creator"}), 404
+    project = Project.query.get_or_404(project_id)
 
-    user = User.query.get(user_id)
-    if not user:
-        return jsonify({"msg": "User not found"}), 404
+    if int(project.creator_id) != int(current_user_id):
+        return jsonify({"message": "You are not the creator of this project"}), 403
 
-    invitation = Invitation(project_id=project_id, user_id=user_id)
+    if UserProject.query.filter_by(user_id=user_id, project_id=project_id).first():
+        return jsonify({"message": "User is already a member of this project"}), 400
+
+    invitation = Invitation(project_id=project_id, user_id=user_id, description=f"Invitation to join project {project.title}")
     db.session.add(invitation)
     db.session.commit()
 
-    return jsonify({"msg": "User invited successfully"}), 201
+    return jsonify({"message": "Invitation sent"}), 200
+
+def get_project_users(project_id):
+    project = Project.query.get_or_404(project_id)
+    users = [
+        {
+            "id": user_project.user.id,
+            "name": user_project.user.name,
+            "role": user_project.role
+        }
+        for user_project in project.users
+    ]
+    return jsonify(users), 200
 
 
-def accept_invitation(invitation_id, user_id):
-    invitation = Invitation.query.get(invitation_id)
-    if not invitation:
-        return jsonify({"msg": "Invitation not found"}), 404
+def update_user_role(project_id, user_id, current_user_id, data):
+    role = data.get('role')
 
-    if invitation.user_id != user_id:
-        return jsonify({"msg": "You are not the recipient of this invitation"}), 403
+    project = Project.query.get_or_404(project_id)
 
-    invitation.status = 'accepted'
+    if project.creator_id != current_user_id:
+        return jsonify({"message": "You are not the creator of this project"}), 403
+
+    user_project = UserProject.query.filter_by(user_id=user_id, project_id=project_id).first()
+
+    if not user_project:
+        return jsonify({"message": "User is not a member of this project"}), 404
+
+    user_project.role = role
     db.session.commit()
 
-    user_project = UserProject(user_id=invitation.user_id, project_id=invitation.project_id)
-    db.session.add(user_project)
-    db.session.commit()
-
-    return jsonify({"msg": "Invitation accepted successfully"}), 200
-
-
-def reject_invitation(invitation_id, user_id):
-    invitation = Invitation.query.get(invitation_id)
-    if not invitation:
-        return jsonify({"msg": "Invitation not found"}), 404
-
-    if invitation.user_id != user_id:
-        return jsonify({"msg": "You are not the recipient of this invitation"}), 403
-
-    invitation.status = 'rejected'
-    db.session.commit()
-
-    return jsonify({"msg": "Invitation rejected successfully"}), 200
+    return jsonify({"message": "User role updated"}), 200

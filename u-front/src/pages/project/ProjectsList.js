@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Spinner, Button, Form, Card } from 'react-bootstrap';
-import api from '../services/apiService';
+import api from '../../services/apiService';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
 import './ProjectsList.css'; // Import custom CSS
@@ -77,6 +77,27 @@ const ProjectsList = () => {
         navigate('/create-project');
     };
 
+    const handleViewProject = (projectId) => {
+        navigate(`/project/${projectId}/details`);
+    };
+
+    const formatDate = (dateString) => {
+        const date = new Date(dateString);
+        const day = String(date.getDate()).padStart(2, '0');
+        const month = String(date.getMonth() + 1).padStart(2, '0');
+        const year = date.getFullYear();
+        const hours = String(date.getHours()).padStart(2, '0');
+        const minutes = String(date.getMinutes()).padStart(2, '0');
+        return `${day}.${month}.${year} ${hours}:${minutes}`;
+    };
+
+    const truncateText = (text, maxLength) => {
+        if (text.length > maxLength) {
+            return text.substring(0, maxLength) + '...';
+        }
+        return text;
+    };
+
     if (error) {
         return <div>Error: {error}</div>;
     }
@@ -143,10 +164,11 @@ const ProjectsList = () => {
                     {filteredProjects.map(project => (
                         <Card key={project.id} className="project-card mb-3">
                             <Card.Body>
-                                <Card.Title>{project.title}</Card.Title>
-                                <Card.Text>{project.description}</Card.Text>
+                                <Card.Title>{truncateText(project.title, 50)}</Card.Title>
+                                <Card.Text>{truncateText(project.description, 100)}</Card.Text>
                                 <Card.Text><strong>Навыки:</strong> {project.skills.join(', ')}</Card.Text>
-                                <Button variant="success">Подать заявку</Button>
+                                <Card.Text><strong>Создано:</strong> {formatDate(project.created_at)}</Card.Text>
+                                <Button variant="success" onClick={() => handleViewProject(project.id)}>Просмотреть</Button>
                             </Card.Body>
                         </Card>
                     ))}

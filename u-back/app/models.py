@@ -85,12 +85,13 @@ class UserProject(db.Model):
 
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), primary_key=True)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), primary_key=True)
-
+    role = db.Column(db.String(50), nullable=False, default='Участник')
 
 class Invitation(db.Model):
     __tablename__ = 'invitations'
 
     id = db.Column(db.Integer, primary_key=True)
+    description = db.Column(db.Text, nullable=False)
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='pending')

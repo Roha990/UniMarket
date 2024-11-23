@@ -3,7 +3,7 @@ import { Table, Container, Row, Col, Spinner, Pagination, Button, Modal } from '
 import { useNavigate } from 'react-router-dom';
 import api from '../../../services/apiService';
 import { jwtDecode } from 'jwt-decode';
-import EditUserProfile from '../../EditUserProfile'; // Import the EditUserProfile component
+import EditUserProfile from '../../user/EditUserProfile'; // Import the EditUserProfile component
 
 const UsersList = () => {
     const [data, setData] = useState([]);
@@ -34,7 +34,7 @@ const UsersList = () => {
         const token = localStorage.getItem('accessToken');
         if (token) {
             const decodedToken = jwtDecode(token);
-            if (decodedToken.sub.role === 'admin') {
+            if (decodedToken.user.role === 'admin') {
                 fetchUsers(pagination.page);
             } else {
                 setError('Access denied');
@@ -51,7 +51,7 @@ const UsersList = () => {
     };
 
     const handleRowClick = (record) => {
-        navigate(`/user/${record.id}`);
+        navigate(`/user/${record.id}/profile`);
     };
 
     const handleEditClick = (user) => {
@@ -162,7 +162,7 @@ const UsersList = () => {
                     <Modal.Title>Edit User Profile</Modal.Title>
                 </Modal.Header>
                 <Modal.Body>
-                    {userToEdit && <EditUserProfile user={userToEdit} onClose={handleCloseModal} />}
+                    {userToEdit && <EditUserProfile userId={userToEdit.id} onClose={handleCloseModal} />}
                 </Modal.Body>
             </Modal>
         </Container>

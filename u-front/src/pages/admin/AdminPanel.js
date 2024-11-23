@@ -12,7 +12,7 @@ const AdminPanel = () => {
         const token = localStorage.getItem('accessToken');
         if (token) {
             const decodedToken = jwtDecode(token);
-            if (decodedToken.sub.role === 'admin') {
+            if (decodedToken.user.role === 'admin') {
                 setLoading(false);
             } else {
                 setError('Access denied');

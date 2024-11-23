@@ -1,12 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Spinner } from 'react-bootstrap';
-import api from '../services/apiService';
+import api from '../../services/apiService';
 import Select from 'react-select';
-import{ getRandomColor } from '../shared/scripts';
+import { getRandomColor } from '../../shared/scripts';
 
-const EditUserProfile = () => {
-    const { userId } = useParams();
+const EditUserProfile = ({ userId, onClose }) => {
     const navigate = useNavigate();
     const [userData, setUserData] = useState({
         username: '',
@@ -62,6 +61,7 @@ const EditUserProfile = () => {
         e.preventDefault();
         try {
             await api.put(`/user/${userId}`, userData);
+            onClose();
             navigate(`/user/${userId}`);
         } catch (error) {
             setError(error.message);

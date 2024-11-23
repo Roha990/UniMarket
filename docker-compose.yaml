@@ -25,6 +25,8 @@ services:
       - POSTGRES_DB=uniMarket
       - POSTGRES_USER=postgres
       - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./u-back:/app
     depends_on:
       - db
       - redis

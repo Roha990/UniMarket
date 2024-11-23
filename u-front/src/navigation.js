@@ -1,18 +1,20 @@
 import {
     createBrowserRouter,
 } from "react-router-dom";
-import Login from "./pages/Login";
+import Login from "./pages/auth/Login";
 import Home from "./pages/home/Home";
 import LayoutBase from "./components/Layout/Layout";
-import Register from "./pages/Register";
-import UserProfile from "./pages/UserProfile";
+import Register from "./pages/auth/Register";
+import UserProfile from "./pages/user/UserProfile";
 import UsersList from "./pages/admin/user/AdminUsers";
-import EditUserProfile from "./pages/EditUserProfile";
-import CreateProject from "./pages/CreateProject";
-import ProjectsList from "./pages/ProjectsList";
+import CreateProject from "./pages/project/CreateProject";
+import ProjectsList from "./pages/project/ProjectsList";
 import AdminPanel from "./pages/admin/AdminPanel";
 import AdminSkills from "./pages/admin/skills/AdminSkills";
-import UserProfileLayout from "./pages/UserProfileLayout";
+import UserProfileLayout from "./pages/user/UserProfileLayout";
+import ProjectProfile from "./pages/project/ProjectProfile";
+import ProjectLayout from "./pages/project/ProjectLayout";
+import InvitationsList from "./pages/InvitationsList";
 
 const router = createBrowserRouter([
     {
@@ -49,23 +51,33 @@ const router = createBrowserRouter([
                 path: "/user/:userId",
                 element: <UserProfileLayout/>,
                 children:[
-                                {
+                    {
                 path: "/user/:userId/profile",
                 element: <UserProfile/>,
-            },
+                    },
                 ]
             },
             {
-                path: "/user/:userId/edit-profile",
-                element: <EditUserProfile />,
-            },
-                        {
                 path: "/create-project",
                 element: <CreateProject />,
             },
             {
+                path: "/project/:projectId",
+                element: <ProjectLayout/>,
+                children:[
+                    {
+                path: "/project/:projectId/details",
+                element: <ProjectProfile/>,
+                    },
+                ]
+            },
+            {
                 path: "/logout",
                 element: <Home />,
+            },
+                        {
+                path: "/invitations",
+                element: <InvitationsList />,
             },
                         {
                 path: "/projects",

@@ -1,10 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate, Outlet, Link } from 'react-router-dom';
-import { Card, Container, Row, Col, Spinner, Button, Nav } from 'react-bootstrap';
-import api from '../services/apiService';
+import { Container, Row, Col, Spinner, Button, Nav, Modal } from 'react-bootstrap';
+import api from '../../services/apiService';
 import { jwtDecode } from 'jwt-decode';
-import { getRandomColor } from "../shared/scripts";
-import { BsPersonCircle } from "react-icons/bs";
+import EditUserProfile from "./EditUserProfile";
 
 const UserProfile = () => {
     const { userId } = useParams();
@@ -13,6 +12,7 @@ const UserProfile = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isOwner, setIsOwner] = useState(false);
+    const [showEditModal, setShowEditModal] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -23,7 +23,7 @@ const UserProfile = () => {
 
                 const token = localStorage.getItem('accessToken');
                 const decodedToken = jwtDecode(token);
-                const currentUserId = decodedToken.sub.id;
+                const currentUserId = decodedToken.sub;
 
                 setIsOwner(currentUserId === parseInt(userId, 10));
             } catch (error) {
@@ -36,7 +36,11 @@ const UserProfile = () => {
     }, [userId]);
 
     const handleEditProfile = () => {
-        navigate(`/user/${userId}/edit-profile`);
+        setShowEditModal(true);
+    };
+
+    const handleCloseModal = () => {
+        setShowEditModal(false);
     };
 
     if (error) {
@@ -73,6 +77,14 @@ const UserProfile = () => {
                     <Outlet />
                 </Col>
             </Row>
+            <Modal show={showEditModal} onHide={handleCloseModal} size="lg">
+                <Modal.Header closeButton>
+                    <Modal.Title>Редактирование профиля</Modal.Title>
+                </Modal.Header>
+                <Modal.Body>
+                    <EditUserProfile userId={userId} onClose={handleCloseModal} />
+                </Modal.Body>
+            </Modal>
         </Container>
     );
 };

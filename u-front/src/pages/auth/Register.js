@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { Alert, Button, Form, Container, Row, Col } from 'react-bootstrap';
-import { register } from '../services/authService';
+import { register } from '../../services/authService';
 
 const Register = () => {
     const [error, setError] = useState('');

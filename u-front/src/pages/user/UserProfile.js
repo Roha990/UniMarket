@@ -1,9 +1,9 @@
 import React, { useEffect, useState } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { Card, Container, Row, Col, Spinner, Button } from 'react-bootstrap';
-import api from '../services/apiService';
+import api from '../../services/apiService';
 import { jwtDecode } from 'jwt-decode';
-import { getRandomColor } from "../shared/scripts";
+import { getRandomColor } from "../../shared/scripts";
 import {BsPersonCircle, BsPersonSquare, BsStar, BsStarFill, BsStarHalf} from "react-icons/bs";
 import './UserProfile.css';
 

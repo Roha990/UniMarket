@@ -1,7 +1,7 @@
 from flask import jsonify
 
 from ..common import errorWrapper, pageWrapper
-from ..models import User, Skill, UserSkill
+from ..models import User, Skill, UserSkill, Invitation, UserProject
 from ..extensions import db
 
 
@@ -22,6 +22,28 @@ def get_user_info(user_id):
         "skills": [skill.name for skill in user.skills],
     }), 200
 
+def get_invitations(current_user_id):
+    invitations = Invitation.query.filter_by(user_id=current_user_id, status='pending').all()
+
+    return jsonify([{
+        "id": invitation.id,
+        "project_id": invitation.project_id,
+        "description": invitation.description,
+        "status": invitation.status
+    } for invitation in invitations]), 200
+
+def accept_invitation(invitation_id, current_user_id):
+    invitation = Invitation.query.filter_by(id=invitation_id, user_id=current_user_id, status='pending').first()
+
+    if not invitation:
+        return jsonify({"message": "No pending invitation found"}), 404
+
+    invitation.status = 'accepted'
+    user_project = UserProject(user_id=current_user_id, project_id=invitation.project_id, role='member')
+    db.session.add(user_project)
+    db.session.commit()
+
+    return jsonify({"message": "Invitation accepted"}), 200
 
 def get_users(page):
     users = User.query.paginate(page=page, per_page=10, error_out=False)
