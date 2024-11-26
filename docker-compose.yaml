@@ -9,7 +9,7 @@ services:
     depends_on:
       - backend
     volumes:
-      - ./u-back:/app
+      - ./u-front:/app
 
   backend:
     build:
