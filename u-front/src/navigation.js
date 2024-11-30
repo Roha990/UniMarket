@@ -15,6 +15,7 @@ import UserProfileLayout from "./pages/user/UserProfileLayout";
 import ProjectProfile from "./pages/project/ProjectProfile";
 import ProjectLayout from "./pages/project/ProjectLayout";
 import InvitationsList from "./pages/InvitationsList";
+import UserProjects from "./pages/user/UserProjects";
 
 const router = createBrowserRouter([
     {
@@ -55,6 +56,10 @@ const router = createBrowserRouter([
                 path: "/user/:userId/profile",
                 element: <UserProfile/>,
                     },
+                                        {
+                path: "/user/:userId/projects",
+                element: <UserProjects/>,
+                    },
                 ]
             },
             {
@@ -69,6 +74,7 @@ const router = createBrowserRouter([
                 path: "/project/:projectId/details",
                 element: <ProjectProfile/>,
                     },
+
                 ]
             },
             {

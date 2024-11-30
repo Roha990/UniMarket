@@ -1,7 +1,7 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt,get_jwt_identity
 from ..common import getRouterGroupURL
-from ..services.project import create_project, get_projects, get_project, update_project, delete_project, update_user_role, get_project_users, invite_user
+from ..services.project import create_project, get_projects, get_project, update_project, delete_project, update_user_role, get_project_users, invite_user, get_directions
 
 bp = Blueprint('project', __name__)
 routeGroup = getRouterGroupURL('/project')
@@ -57,3 +57,7 @@ def update_project_user_role(project_id, user_id):
     current_user_id = get_jwt_identity()
     data = request.get_json()
     return update_user_role(project_id, user_id, current_user_id, data)
+
+@bp.route(routeGroup + '/directions', methods=['GET'])
+def get_directions_route():
+ return get_directions()

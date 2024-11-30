@@ -22,8 +22,8 @@ const UserProfile = () => {
                 setLoading(false);
 
                 const token = localStorage.getItem('accessToken');
-                const decodedToken = jwtDecode(token);
-                const currentUserId = decodedToken.sub;
+                const decodedToken = token ? jwtDecode(token) : null;
+                const currentUserId = decodedToken ? decodedToken.sub : null;
 
                 setIsOwner(currentUserId === parseInt(userId, 10));
             } catch (error) {

@@ -2,7 +2,7 @@ from flask import jsonify, request
 from sqlalchemy import desc
 
 from ..common import pageWrapper
-from ..models import Project, Invitation, User, UserProject, Skill, ProjectSkill
+from ..models import Project, Invitation, User, UserProject, Skill, ProjectSkill, Direction, ProjectDirection
 from ..extensions import db
 
 
@@ -10,20 +10,23 @@ def create_project(data, creator_id):
     title = data.get('title')
     description = data.get('description')
     skills = data.get('skills', [])
+    direction_id = data.get('direction')
 
-    if not title or not description:
-        return jsonify({"msg": "Missing title or description"}), 400
+    if not title or not description or not direction_id:
+        return jsonify({"msg": "Missing required fields"}), 400
 
     new_project = Project(title=title, description=description, creator_id=creator_id)
     db.session.add(new_project)
     db.session.commit()
 
-    for skill_name in skills:
-        skill = Skill.query.filter_by(name=skill_name).first()
+    project_direction = ProjectDirection(project_id=new_project.id, direction_id=direction_id)
+    db.session.add(project_direction)
+    db.session.commit()
+
+    for skill in skills:
+        skill = Skill.query.filter_by(id=skill).first()
         if not skill:
-            skill = Skill(name=skill_name)
-            db.session.add(skill)
-            db.session.commit()
+            return
         project_skill = ProjectSkill(project_id=new_project.id, skill_id=skill.id)
         db.session.add(project_skill)
 
@@ -39,7 +42,7 @@ def get_projects(page, direction, skills, status):
     query = Project.query
 
     if direction:
-        query = query.filter(Project.direction == direction)
+        query = query.filter(Project.direction_id == direction)
 
     if skills[0]:
         query = query.join(Project.skills).filter(Skill.id.in_(skills))
@@ -58,6 +61,8 @@ def get_projects(page, direction, skills, status):
         "description": project.description,
         "skills": [skill.name for skill in project.skills],
         "created_at": project.created_at,
+        "status": project.status,
+        "direction": [direction.name for direction in project.directions],
     } for project in projects.items], page, total_elements)
 
 
@@ -73,7 +78,9 @@ def get_project(project_id):
         "skills": [skill.name for skill in project.skills],
         "created_at": project.created_at,
         "creator_id": project.creator_id,
-        "users": [user.username for user in project.users],
+        "status": project.status,
+        "direction": [direction.name for direction in project.directions],
+        "users": [{"username": user.username, "id": user.id} for user in project.users],
     }), 200
 
 
@@ -153,3 +160,10 @@ def update_user_role(project_id, user_id, current_user_id, data):
     db.session.commit()
 
     return jsonify({"message": "User role updated"}), 200
+
+def get_directions():
+    directions = Direction.query.all()
+    directions_list = [{'id': direction.id, 'name': direction.name} for direction in directions]
+    return jsonify({
+        "directions": directions_list,
+    }), 200

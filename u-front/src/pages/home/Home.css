@@ -3,10 +3,12 @@
     background-color: #e7f3fe;
     border-radius: 8px;
     box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+    margin-bottom: 20px;
 }
 
 .info-box h2 {
     color: #333;
+    margin-bottom: 15px;
 }
 
 .info-box ul {
@@ -26,3 +28,14 @@
     width: 1em;
     margin-left: -1em;
 }
+
+.info-box p {
+    color: #333;
+}
+
+.img-fluid {
+    border-radius: 5%;
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+    transition: transform 0.3s;
+}
+

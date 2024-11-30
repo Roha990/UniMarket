@@ -135,6 +135,7 @@ const EditProject = ({ projectId, onClose }) => {
                     ))}
                 </Form.Control>
             </Form.Group>
+            <br/>
             <Button variant="primary" type="submit">
                 Сохранить изменения
             </Button>

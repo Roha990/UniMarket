@@ -8,7 +8,8 @@
 .project-description,
 .project-status,
 .project-created,
-.project-skills {
+.project-skills,
+.project-users {
     margin-bottom: 15px;
     font-size: 16px;
 }
@@ -16,7 +17,8 @@
 .project-description strong,
 .project-status strong,
 .project-created strong,
-.project-skills strong {
+.project-skills strong,
+.project-users strong {
     font-weight: bold;
     margin-right: 5px;
 }
@@ -44,20 +46,4 @@
 
 .text-info {
     color: #17a2b8;
-}
-
-.project-users-title {
-    font-size: 24px;
-    font-weight: bold;
-    margin-bottom: 15px;
-    color: #333;
-}
-
-.user-link {
-    text-decoration: none;
-    color: #007bff;
-}
-
-.user-link:hover {
-    text-decoration: underline;
 }

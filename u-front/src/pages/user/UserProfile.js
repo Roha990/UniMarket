@@ -1,11 +1,12 @@
 import React, { useEffect, useState } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
-import { Card, Container, Row, Col, Spinner, Button } from 'react-bootstrap';
+import { useParams } from 'react-router-dom';
+import { Card, Container, Row, Col, Spinner, Button, Modal } from 'react-bootstrap';
 import api from '../../services/apiService';
 import { jwtDecode } from 'jwt-decode';
+import { BsPersonCircle, BsPersonSquare, BsStar, BsStarFill, BsStarHalf } from "react-icons/bs";
 import { getRandomColor } from "../../shared/scripts";
-import {BsPersonCircle, BsPersonSquare, BsStar, BsStarFill, BsStarHalf} from "react-icons/bs";
 import './UserProfile.css';
+import AddReview from './AddReview'; // Импортируем компонент для добавления отзыва
 
 const UserProfile = () => {
     const { userId } = useParams();
@@ -14,6 +15,7 @@ const UserProfile = () => {
     const [lastProject, setLastProject] = useState(null);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
+    const [showAddReview, setShowAddReview] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -21,21 +23,12 @@ const UserProfile = () => {
                 const response = await api.get(`/user/${userId}`);
                 setData(response.data);
 
-                const reviewsData = [
-                    { rating: 5, comment: 'Great work!', reviewer: 'User1' },
-                    { rating: 4, comment: 'Good job, but could be better.', reviewer: 'User2' },
-                    { rating: 3, comment: 'Needs improvement.', reviewer: 'User3' }
-                ];
-                setReviews(reviewsData);
+                const reviewsResponse = await api.get(`/user/${userId}/reviews`);
+                setReviews(reviewsResponse.data);
 
-                // Заглушка для последнего проекта
-                const lastProjectData = {
-                    title: 'Project X',
-                    description: 'A project about XYZ.'
-                };
-                setLastProject(lastProjectData);
+                const lastProjectResponse = await api.get(`/user/${userId}/last-project`);
+                setLastProject(lastProjectResponse.data);
                 setLoading(false);
-
             } catch (error) {
                 setError(error.message);
                 setLoading(false);
@@ -45,7 +38,7 @@ const UserProfile = () => {
         fetchUserData();
     }, [userId]);
 
-        const renderStars = (rating) => {
+    const renderStars = (rating) => {
         const fullStars = Math.floor(rating);
         const halfStar = rating - fullStars >= 0.5;
         const stars = [];
@@ -63,6 +56,28 @@ const UserProfile = () => {
         }
 
         return stars;
+    };
+
+    const handleAddReview = () => {
+        const token = localStorage.getItem('accessToken');
+        if (token) {
+            setShowAddReview(true);
+        }
+    };
+
+    const handleCloseAddReview = () => {
+        setShowAddReview(false);
+        // Обновляем отзывы после добавления нового отзыва
+        const fetchUserData = async () => {
+            try {
+                const reviewsResponse = await api.get(`/user/${userId}/reviews`);
+                setReviews(reviewsResponse.data);
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
+        fetchUserData();
     };
 
     if (error) {
@@ -125,12 +140,14 @@ const UserProfile = () => {
                                     ))}
                                 </div>
                             </Card.Text>
-                                                        <Card.Text><strong>Последний проект:</strong></Card.Text>
+                            <Card.Text><strong>Последний проект:</strong></Card.Text>
                             {lastProject && (
-                                <Card>
+                                <Card className="mb-3">
                                     <Card.Body>
                                         <Card.Title>{lastProject.title}</Card.Title>
                                         <Card.Text>{lastProject.description}</Card.Text>
+                                        <Card.Text><strong>Статус:</strong> {lastProject.status}</Card.Text>
+                                        <Card.Text><strong>Создано:</strong> {new Date(lastProject.created_at).toLocaleString()}</Card.Text>
                                     </Card.Body>
                                 </Card>
                             )}
@@ -151,11 +168,20 @@ const UserProfile = () => {
                                 </Card>
                             ))}
                             <hr />
+                            {!!localStorage.getItem('accessToken') && (
+                                <Button variant="primary" onClick={handleAddReview}>
+                                    Добавить отзыв
+                                </Button>
+                            )}
                         </Card.Body>
                     </Card>
                 </Col>
             </Row>
+            <Modal show={showAddReview} onHide={handleCloseAddReview}>
+                <AddReview userId={userId} onClose={handleCloseAddReview} />
+            </Modal>
         </Container>
     );
 };
+
 export default UserProfile;

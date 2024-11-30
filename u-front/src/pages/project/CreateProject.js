@@ -1,17 +1,19 @@
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
 import { Container, Row, Col, Form, Button, Spinner } from 'react-bootstrap';
 import api from '../../services/apiService';
 import Select from 'react-select';
+import { useNavigate } from 'react-router-dom';
 
 const CreateProject = () => {
     const navigate = useNavigate();
     const [projectData, setProjectData] = useState({
         title: '',
         description: '',
-        skills: []
+        skills: [],
+        direction: ''
     });
     const [allSkills, setAllSkills] = useState([]);
+    const [allDirections, setAllDirections] = useState([]);
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
 
@@ -20,17 +22,29 @@ const CreateProject = () => {
             try {
                 const response = await api.get('/skills');
                 setAllSkills(response.data.skills.map(skill => ({
-                    value: skill.name,
+                    value: skill.id,
                     label: skill.name
+                })));
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
+        const fetchDirections = async () => {
+            try {
+                const response = await api.get('/project/directions');
+                setAllDirections(response.data.directions.map(direction => ({
+                    value: direction.id,
+                    label: direction.name
                 })));
                 setLoading(false);
             } catch (error) {
                 setError(error.message);
-                setLoading(false);
             }
         };
 
         fetchSkills();
+        fetchDirections();
     }, []);
 
     const handleChange = (e) => {
@@ -45,6 +59,13 @@ const CreateProject = () => {
         setProjectData(prevData => ({
             ...prevData,
             skills: selectedOptions.map(option => option.value)
+        }));
+    };
+
+    const handleDirectionChange = (selectedOption) => {
+        setProjectData(prevData => ({
+            ...prevData,
+            direction: selectedOption ? selectedOption.value : ''
         }));
     };
 
@@ -114,6 +135,19 @@ const CreateProject = () => {
                             />
                         </Form.Group>
 
+                        <Form.Group controlId="formDirection">
+                            <Form.Label>Направление</Form.Label>
+                            <Select
+                                options={allDirections}
+                                value={{
+                                    value: projectData.direction,
+                                    label: allDirections.find(d => d.value === projectData.direction)?.label
+                                }}
+                                onChange={handleDirectionChange}
+                                required
+                            />
+                        </Form.Group>
+<br/>
                         <Button variant="primary" type="submit">
                             Создать проект
                         </Button>

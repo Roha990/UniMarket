@@ -1,19 +1,25 @@
 import React, { useEffect, useState } from 'react';
-import { Form, Button, Modal, Spinner, Container, Row, Col } from 'react-bootstrap';
+import { Form, Button, Modal, Spinner, Container, Row, Col, Card } from 'react-bootstrap';
 import api from "../../services/apiService";
+import './ProjectsList.css';
+import Select from "react-select";
 
 const InviteUser = ({ projectId, onClose }) => {
     const [users, setUsers] = useState([]);
-    const [selectedUser, setSelectedUser] = useState(null);
-    const [role, setRole] = useState('member');
+    const [filteredUsers, setFilteredUsers] = useState([]);
+    const [filters, setFilters] = useState({ skills: [] });
+    const [allSkills, setAllSkills] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
 
     useEffect(() => {
         const fetchUsers = async () => {
             try {
-                const response = await api.get('/user/users');
+                const response = await api.get('/user/users', {
+                    params: { project_id: projectId }
+                });
                 setUsers(response.data.items);
+                setFilteredUsers(response.data.items);
                 setLoading(false);
             } catch (error) {
                 setError(error.message);
@@ -21,12 +27,48 @@ const InviteUser = ({ projectId, onClose }) => {
             }
         };
 
+        const fetchSkills = async () => {
+            try {
+                const response = await api.get('/skills');
+                setAllSkills(response.data.skills.map(skill => ({
+                    value: skill.id,
+                    label: skill.name
+                })));
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
         fetchUsers();
+        fetchSkills();
     }, []);
 
-    const handleInvite = async () => {
+    useEffect(() => {
+        applyFilters();
+    }, [filters]);
+
+    const applyFilters = () => {
+        let filtered = users;
+
+        if (filters.skills.length > 0) {
+            filtered = filtered.filter(user =>
+                filters.skills.every(skill => user.skills.includes(skill))
+            );
+        }
+
+        setFilteredUsers(filtered);
+    };
+
+    const handleSkillChange = (selectedOptions) => {
+        setFilters(prevFilters => ({
+            ...prevFilters,
+            skills: selectedOptions.map(option => option.value)
+        }));
+    };
+
+    const handleInvite = async (userId) => {
         try {
-            await api.post(`/project/${projectId}/invite`, { user_id: selectedUser, role });
+            await api.post(`/project/${projectId}/invite`, { user_id: userId, role: 'member' });
             onClose();
         } catch (error) {
             setError(error.message);
@@ -48,31 +90,47 @@ const InviteUser = ({ projectId, onClose }) => {
     }
 
     return (
-        <Modal.Body>
-            <Form>
-                <Form.Group controlId="formUser">
-                    <Form.Label>Выберите пользователя</Form.Label>
-                    <Form.Control as="select" onChange={(e) => setSelectedUser(e.target.value)}>
-                        <option value="">Выберите пользователя</option>
-                        {users.map(user => (
-                            <option key={user.id} value={user.id}>
-                                {user.full_name} ({user.username})
-                            </option>
-                        ))}
-                    </Form.Control>
-                </Form.Group>
-                <Form.Group controlId="formRole">
-                    <Form.Label>Выберите роль</Form.Label>
-                    <Form.Control as="select" onChange={(e) => setRole(e.target.value)}>
-                        <option value="member">Участник</option>
-                        <option value="admin">Администратор</option>
-                    </Form.Control>
-                </Form.Group>
-                <Button variant="primary" onClick={handleInvite}>
-                    Пригласить
-                </Button>
-            </Form>
-        </Modal.Body>
+        <Modal show={true} onHide={onClose} size="lg" dialogClassName="fixed-size-modal">
+            <Modal.Header closeButton>
+                <Modal.Title>Пригласить участника</Modal.Title>
+            </Modal.Header>
+            <Modal.Body>
+                <Container>
+                    <Row>
+                        <Col md={3}>
+                            <h4>Фильтр</h4>
+                            <Form>
+                                <Form.Group controlId="formSkills">
+                                    <Form.Label>Навыки</Form.Label>
+                                    <Select
+                                        isMulti
+                                        options={allSkills}
+                                        value={filters.skills.map(skill => ({
+                                            value: skill,
+                                            label: allSkills.find(s => s.value === skill).label
+                                        }))}
+                                        onChange={handleSkillChange}
+                                    />
+                                </Form.Group>
+                            </Form>
+                        </Col>
+                        <Col md={9}>
+                            {filteredUsers.map(user => (
+                                <Card key={user.id} className="mb-3">
+                                    <Card.Body>
+                                        <Card.Title>{user.full_name} ({user.username})</Card.Title>
+                                        <Card.Text><strong>Навыки:</strong> {user.skills.join(', ')}</Card.Text>
+                                        <Button variant="success" onClick={() => handleInvite(user.id)}>
+                                            Пригласить
+                                        </Button>
+                                    </Card.Body>
+                                </Card>
+                            ))}
+                        </Col>
+                    </Row>
+                </Container>
+            </Modal.Body>
+        </Modal>
     );
 };
 

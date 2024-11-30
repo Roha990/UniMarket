@@ -27,6 +27,17 @@ class User(db.Model):
     def check_password(self, password):
         return check_password_hash(self.password, password)
 
+class Review(db.Model):
+    __tablename__ = 'reviews'
+
+    id = db.Column(db.Integer, primary_key=True)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    reviewer_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    rating = db.Column(db.Integer, nullable=False)
+    comment = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    reviewer = relationship('User', foreign_keys=[reviewer_id])
 class Project(db.Model):
     __tablename__ = 'projects'
 

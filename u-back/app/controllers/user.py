@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from ..common import getRouterGroupURL
-from ..services.user import get_user_info, update_user_info, delete_user, get_users, get_invitations, accept_invitation
+from ..services.user import get_user_info, update_user_info, delete_user, get_users, get_invitations, accept_invitation, get_user_projects, get_user_last_project, get_user_reviews, create_user_review
 
 bp = Blueprint('user', __name__)
 routeGroup = getRouterGroupURL('/user')
@@ -39,8 +39,24 @@ def delete_user_route():
 @bp.route(routeGroup + '/users', methods=['GET'])
 @jwt_required()
 def get_all_users():
-    if get_jwt()['user']['role'] != 'admin':
-        return {'message': 'Access denied'}, 403
-
+    skills = request.args.get('skills')
+    project_id = request.args.get('project_id')
     page = request.args.get('page', 1, type=int)
-    return get_users(page)
+    return get_users(page, skills, project_id)
+
+@bp.route(routeGroup + '/<int:user_id>/projects', methods=['GET'])
+def get_user_projects_route(user_id):
+    return get_user_projects(user_id)
+
+@bp.route(routeGroup + '/<int:user_id>/last-project', methods=['GET'])
+def get_user_last_project_project(user_id):
+    return get_user_last_project(user_id)
+
+@bp.route(routeGroup+ '/<int:user_id>/reviews', methods=['GET'])
+def get_user_reviews_route(user_id):
+    return get_user_reviews(user_id)
+
+@bp.route(routeGroup+'/<int:user_id>/reviews', methods=['POST'])
+@jwt_required()
+def create_user_review_route(user_id):
+    return create_user_review(user_id, request.get_json(), get_jwt_identity())

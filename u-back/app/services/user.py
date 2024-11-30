@@ -1,8 +1,9 @@
 from flask import jsonify
 
 from ..common import errorWrapper, pageWrapper
-from ..models import User, Skill, UserSkill, Invitation, UserProject
+from ..models import User, Skill, UserSkill, Invitation, UserProject, Project, Review
 from ..extensions import db
+from sqlalchemy import desc
 
 
 def get_user_info(user_id):
@@ -45,8 +46,20 @@ def accept_invitation(invitation_id, current_user_id):
 
     return jsonify({"message": "Invitation accepted"}), 200
 
-def get_users(page):
-    users = User.query.paginate(page=page, per_page=10, error_out=False)
+def get_users(page, skills, project_id):
+    query = User.query
+
+    if skills:
+        skill_ids = skills.split(',')
+        query = query.join(User.skills).filter(Skill.id.in_(skill_ids))
+    if project_id:
+        subquery = db.session.query(UserProject.user_id).filter_by(project_id=project_id)
+        query = query.filter(~User.id.in_(subquery))
+        subquery = db.session.query(Invitation.user_id).filter_by(project_id=project_id, status='pending')
+        query = query.filter(~User.id.in_(subquery))
+        query = query.order_by(desc(Project.created_at))
+
+    users = query.paginate(page=page, per_page=10, error_out=False)
     total_elements = users.total
 
     return pageWrapper([{
@@ -58,8 +71,18 @@ def get_users(page):
         "email": user.email,
         "role": user.role,
         "phone_number": user.phone_number,
+        "skills": [skill.name for skill in user.skills],
     } for user in users.items], page, total_elements)
 
+def get_user_projects(user_id):
+    projects = db.session.query(Project).join(UserProject).filter(UserProject.user_id == user_id).order_by(desc(Project.created_at)).all()
+    return jsonify([{
+        "id": project.id,
+        "title": project.title,
+        "description": project.description,
+        "status": project.status,
+        "created_at": project.created_at.isoformat()
+    } for project in projects]), 200
 
 def update_user_info(user_id, data):
     user = User.query.get(user_id)
@@ -112,3 +135,56 @@ def delete_user(user_id):
     db.session.commit()
 
     return jsonify({"msg": "User deleted successfully"}), 200
+
+def get_user_last_project(user_id):
+    last_project = (
+        db.session.query(Project)
+        .join(UserProject, UserProject.project_id == Project.id)
+        .filter(UserProject.user_id == user_id)
+        .order_by(Project.created_at.desc())
+        .first()
+    )
+
+    if not last_project:
+        return jsonify({"message": "No projects found"}), 404
+
+    return jsonify({
+        "id": last_project.id,
+        "title": last_project.title,
+        "description": last_project.description,
+        "status": last_project.status,
+        "created_at": last_project.created_at.isoformat()
+    }), 200
+
+def get_user_reviews(user_id):
+    reviews = Review.query.filter_by(user_id=user_id).all()
+    return jsonify([{
+        "id": review.id,
+        "reviewer": review.reviewer.username,
+        "rating": review.rating,
+        "comment": review.comment,
+        "created_at": review.created_at.isoformat()
+    } for review in reviews]), 200
+
+def create_user_review(user_id, data, reviewer_id):
+    rating = data.get('rating')
+    comment = data.get('comment')
+
+    if not rating or not comment:
+        return jsonify({"msg": "Missing rating or comment"}), 400
+
+    new_review = Review(user_id=user_id, reviewer_id=reviewer_id, rating=rating, comment=comment)
+    db.session.add(new_review)
+    db.session.commit()
+
+    reviews = Review.query.filter_by(user_id=user_id).all()
+
+    total_rating = sum(review.rating for review in reviews)
+
+    average_rating = total_rating / len(reviews)
+
+    user = User.query.get(user_id)
+    user.rating = average_rating
+    db.session.commit()
+
+    return jsonify({"msg": "Review created successfully"}), 201

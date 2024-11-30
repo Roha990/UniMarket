@@ -3,7 +3,8 @@ import { useParams, useNavigate, Outlet, Link } from 'react-router-dom';
 import { Container, Row, Col, Spinner, Button, Nav, Modal } from 'react-bootstrap';
 import { jwtDecode } from 'jwt-decode';
 import InviteUser from './InviteUser';
-import api from "../../services/apiService"; // Импортируем компонент для приглашения пользователей
+import api from "../../services/apiService";
+import './ProjectsList.css';
 
 const ProjectPanel = () => {
     const { projectId } = useParams();
@@ -22,8 +23,8 @@ const ProjectPanel = () => {
                 setLoading(false);
 
                 const token = localStorage.getItem('accessToken');
-                const decodedToken = jwtDecode(token);
-                const currentUserId = decodedToken.sub;
+                const decodedToken = token ? jwtDecode(token) : null;
+                const currentUserId = decodedToken ? decodedToken.sub : null;
 
                 setIsOwner(currentUserId == response.data.creator_id);
             } catch (error) {
@@ -68,6 +69,7 @@ const ProjectPanel = () => {
                         <Nav.Link as={Link} to={`/project/${projectId}/tasks`}>Задачи</Nav.Link>
                         {isOwner && (
                             <>
+                                <br/>
                                 <Button variant="primary" onClick={handleInviteUser}>
                                     Пригласить участника
                                 </Button>
@@ -79,10 +81,7 @@ const ProjectPanel = () => {
                     <Outlet />
                 </Col>
             </Row>
-            <Modal show={showInviteModal} onHide={handleCloseModal} size="lg">
-                <Modal.Header closeButton>
-                    <Modal.Title>Пригласить участника</Modal.Title>
-                </Modal.Header>
+            <Modal show={showInviteModal} onHide={handleCloseModal} size="lg" dialogClassName="fixed-size-modal">
                 <InviteUser projectId={projectId} onClose={handleCloseModal} />
             </Modal>
         </Container>

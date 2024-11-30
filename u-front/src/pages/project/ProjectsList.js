@@ -10,6 +10,7 @@ const ProjectsList = () => {
     const [filteredProjects, setFilteredProjects] = useState([]);
     const [filters, setFilters] = useState({ direction: '', skills: [], status: '' });
     const [allSkills, setAllSkills] = useState([]);
+    const [allDirections, setAllDirections] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
@@ -39,8 +40,21 @@ const ProjectsList = () => {
             }
         };
 
+        const fetchDirections = async () => {
+            try {
+                const response = await api.get('project/directions');
+                setAllDirections(response.data.directions.map(direction => ({
+                    value: direction.id,
+                    label: direction.name
+                })));
+            } catch (error) {
+                setError(error.message);
+            }
+        };
+
         fetchProjects();
         fetchSkills();
+        fetchDirections();
     }, []);
 
     const handleFilterChange = (e) => {
@@ -90,7 +104,6 @@ const ProjectsList = () => {
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${day}.${month}.${year} ${hours}:${minutes}`;
     };
-
     const truncateText = (text, maxLength) => {
         if (text.length > maxLength) {
             return text.substring(0, maxLength) + '...';
@@ -132,7 +145,11 @@ const ProjectsList = () => {
                             <Form.Label>Направление</Form.Label>
                             <Form.Control as="select" name="direction" onChange={handleFilterChange}>
                                 <option value="">Все</option>
-                                {/* Добавьте сюда опции направлений */}
+                                {allDirections.map(direction => (
+                                    <option key={direction.value} value={direction.value}>
+                                        {direction.label}
+                                    </option>
+                                ))}
                             </Form.Control>
                         </Form.Group>
                         <Form.Group controlId="formSkills">
@@ -155,10 +172,12 @@ const ProjectsList = () => {
                                 <option value="completed">Завершенные</option>
                             </Form.Control>
                         </Form.Group>
+                        <br/>
                         <Button variant="primary" onClick={handleFilterSubmit}>
-                            Отфильтровать
+                            Фильтровать
                         </Button>
                     </Form>
+                    <br/>
                 </Col>
                 <Col md={9}>
                     {filteredProjects.map(project => (
@@ -168,6 +187,8 @@ const ProjectsList = () => {
                                 <Card.Text>{truncateText(project.description, 100)}</Card.Text>
                                 <Card.Text><strong>Навыки:</strong> {project.skills.join(', ')}</Card.Text>
                                 <Card.Text><strong>Создано:</strong> {formatDate(project.created_at)}</Card.Text>
+                                <Card.Text><strong>Направление:</strong> {project.direction.join(', ')}</Card.Text>
+                                <Card.Text><strong>Статус:</strong> {project.status}</Card.Text>
                                 <Button variant="success" onClick={() => handleViewProject(project.id)}>Просмотреть</Button>
                             </Card.Body>
                         </Card>
