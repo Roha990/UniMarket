@@ -55,10 +55,12 @@ def get_users(page, skills, project_id):
     if project_id:
         subquery = db.session.query(UserProject.user_id).filter_by(project_id=project_id)
         query = query.filter(~User.id.in_(subquery))
+
         subquery = db.session.query(Invitation.user_id).filter_by(project_id=project_id, status='pending')
         query = query.filter(~User.id.in_(subquery))
-        query = query.order_by(desc(Project.created_at))
 
+        query = query.join(User.projects).filter(Project.id == project_id)
+    query = query.order_by(desc(Project.created_at))
     users = query.paginate(page=page, per_page=10, error_out=False)
     total_elements = users.total
 
@@ -75,7 +77,7 @@ def get_users(page, skills, project_id):
     } for user in users.items], page, total_elements)
 
 def get_user_projects(user_id):
-    projects = db.session.query(Project).join(UserProject).filter(UserProject.user_id == user_id).order_by(desc(Project.created_at)).all()
+    projects = db.session.query(Project).join(UserProject).filter(UserProject.user_id == user_id).all()
     return jsonify([{
         "id": project.id,
         "title": project.title,
