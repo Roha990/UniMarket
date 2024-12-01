@@ -1,15 +1,22 @@
 /* LayoutBase.css */
-.layout-base {
-    background: linear-gradient(135deg, #f5f7fa, #c3cfe2);
-}
 
-.footer-row {
-    background-color: #ffffff; /* Убедитесь, что фон футера остается белым */
-    border-top: 1px solid #e0e0e0; /* Добавляем верхнюю границу для футера */
-}
 
-.footer-row .text-center {
-    padding: 10px 0;
+footer {
+    background-color: #343a40;
+    color: #f8f9fa;
     font-size: 0.9rem;
-    color: #6c757d;
+}
+
+footer h5 {
+    color: #f8f9fa;
+    font-weight: 600;
+}
+
+footer a:hover {
+    color: #007bff;
+    text-decoration: underline;
+}
+
+footer hr {
+    opacity: 0.2;
 }

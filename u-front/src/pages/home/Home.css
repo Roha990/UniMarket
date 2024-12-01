@@ -1,41 +1,30 @@
-/* Home.css */
-.info-box {
-    background-color: #e7f3fe;
-    border-radius: 8px;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
-    margin-bottom: 20px;
+/* Общий фон */
+body {
+    background-color: #f8f9fa;
 }
 
-.info-box h2 {
-    color: #333;
-    margin-bottom: 15px;
+/* Hover-эффекты для кнопок */
+button:hover {
+    transform: translateY(-3px);
+    transition: transform 0.2s ease-in-out, background-color 0.3s;
 }
 
-.info-box ul {
-    list-style-type: none;
-    padding: 0;
-}
-
-.info-box ul li {
-    margin-bottom: 10px;
-    color: #555;
-}
-
-.info-box ul li:before {
-    content: '•';
-    color: #007bff;
-    display: inline-block;
-    width: 1em;
-    margin-left: -1em;
-}
-
-.info-box p {
-    color: #333;
-}
-
+/* Изображение */
 .img-fluid {
-    border-radius: 5%;
-    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
-    transition: transform 0.3s;
+    transition: transform 0.3s ease-in-out, box-shadow 0.3s;
+}
+.img-fluid:hover {
+    transform: scale(1.05);
+    box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
 }
 
+/* Тени для карточек */
+.card {
+    border-radius: 12px;
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
+}
+
+.info-text {
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.8;
+}
