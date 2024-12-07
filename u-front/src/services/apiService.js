@@ -1,7 +1,7 @@
 import axios from 'axios';
 import {jwtDecode} from 'jwt-decode';
 
-export const baseURL = 'http://localhost:5000/api';
+export const baseURL = 'http://localhost:5001/api';
 
 const api = axios.create({
     baseURL: baseURL,

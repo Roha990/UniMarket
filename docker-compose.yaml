@@ -15,7 +15,7 @@ services:
     build:
       context: u-back
     ports:
-      - "5000:5000"
+      - "5001:5000"
     environment:
       - FLASK_APP=app.py
       - FLASK_ENV=development
@@ -30,7 +30,7 @@ services:
     image: postgres:latest
     restart: always
     ports:
-      - "5432:5432"
+      - "5433:5432"
     environment:
       - POSTGRES_PASSWORD=qwerty123
       - POSTGRES_DB=uniMarket
@@ -42,4 +42,4 @@ services:
     image: redis:latest
     restart: always
     ports:
-      - "6379:6379"
+      - "6380:6379"
