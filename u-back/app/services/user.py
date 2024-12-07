@@ -24,7 +24,7 @@ def get_user_info(user_id):
     }), 200
 
 def get_invitations(current_user_id):
-    invitations = Invitation.query.filter_by(user_id=current_user_id, status='pending').all()
+    invitations = Invitation.query.filter_by(user_id=current_user_id, status='pending', type='invitation').all()
 
     return jsonify([{
         "id": invitation.id,
@@ -33,8 +33,9 @@ def get_invitations(current_user_id):
         "status": invitation.status
     } for invitation in invitations]), 200
 
+
 def accept_invitation(invitation_id, current_user_id):
-    invitation = Invitation.query.filter_by(id=invitation_id, user_id=current_user_id, status='pending').first()
+    invitation = Invitation.query.filter_by(id=invitation_id, user_id=current_user_id, status='pending', type='invitation').first()
 
     if not invitation:
         return jsonify({"message": "No pending invitation found"}), 404
@@ -60,7 +61,7 @@ def get_users(page, skills, project_id):
         query = query.filter(~User.id.in_(subquery))
 
         query = query.join(User.projects).filter(Project.id == project_id)
-    query = query.order_by(desc(Project.created_at))
+        query = query.order_by(desc(Project.created_at))
     users = query.paginate(page=page, per_page=10, error_out=False)
     total_elements = users.total
 

@@ -65,7 +65,6 @@ const UserProfile = () => {
                     <Nav className="flex-column">
                         <Nav.Link as={Link} to={`/user/${userId}/profile`}>Основная информация</Nav.Link>
                         <Nav.Link as={Link} to={`/user/${userId}/projects`}>Проекты</Nav.Link>
-                        <Nav.Link as={Link} to={`/user/${userId}/reviews`}>Отзывы</Nav.Link>
                         {isOwner && (
                             <Button variant="primary" onClick={handleEditProfile}>
                                 Редактировать профиль

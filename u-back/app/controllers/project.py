@@ -1,7 +1,8 @@
 from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt,get_jwt_identity
 from ..common import getRouterGroupURL
-from ..services.project import create_project, get_projects, get_project, update_project, delete_project, update_user_role, get_project_users, invite_user, get_directions
+from ..services.project import (create_project, get_projects, get_project, update_project, delete_project, update_user_role, get_project_users,
+                                invite_user, get_directions, apply_to_project, get_applications, accept_application, get_message, send_message, is_member, create_new_direction)
 
 bp = Blueprint('project', __name__)
 routeGroup = getRouterGroupURL('/project')
@@ -19,7 +20,8 @@ def get_projects_route():
     direction = request.args.get('direction', None)
     skills = request.args.get('skills', '').split(',')
     status = request.args.get('status', '')
-    return get_projects(page, direction, skills, status)
+    current_user_id = request.args.get('current_user_id')
+    return get_projects(page, direction, skills, status, current_user_id)
 
 
 @bp.route(routeGroup + '/<int:project_id>', methods=['GET'])
@@ -61,3 +63,43 @@ def update_project_user_role(project_id, user_id):
 @bp.route(routeGroup + '/directions', methods=['GET'])
 def get_directions_route():
  return get_directions()
+
+@bp.route(routeGroup + '/applications/apply', methods=['POST'])
+@jwt_required()
+def apply_to_project_route():
+    data = request.json
+    project_id = data.get('project_id')
+    current_user_id = get_jwt_identity()
+    return apply_to_project(project_id, current_user_id)
+
+@bp.route(routeGroup + '/applications/<int:project_id>', methods=['GET'])
+@jwt_required()
+def get_applications_route(project_id):
+    current_user_id = get_jwt_identity()
+    return get_applications(project_id, current_user_id)
+
+@bp.route(routeGroup + '/applications/accept/<int:application_id>', methods=['POST'])
+@jwt_required()
+def accept_application_route(application_id):
+    current_user_id = get_jwt_identity()
+    return accept_application(application_id, current_user_id)
+
+@bp.route( routeGroup +'/<int:project_id>/messages', methods=['GET'])
+@jwt_required()
+def get_messages_route(project_id):
+    return get_message(project_id)
+
+@bp.route(routeGroup +'/<int:project_id>/messages', methods=['POST'])
+@jwt_required()
+def send_message_route(project_id):
+    data = request.json
+    return send_message(project_id, data, get_jwt_identity())
+
+@bp.route(routeGroup +'/<int:project_id>/is_member', methods=['GET'])
+def is_member_route(project_id):
+    return is_member(project_id, request.args.get('current_user_id'))
+
+@bp.route(routeGroup +'/directions', methods=['POST'])
+def create_new_direction_route():
+    data = request.json
+    return create_new_direction(data)

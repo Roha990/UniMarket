@@ -106,7 +106,20 @@ class Invitation(db.Model):
     project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
     user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
     status = db.Column(db.String(50), nullable=False, default='pending')
+    type = db.Column(db.String(50), nullable=False, default='invitation')
     created_at = db.Column(db.DateTime, default=datetime.utcnow)
 
     project = relationship('Project', backref='invitations')
     user = relationship('User', backref='invitations')
+
+class Message(db.Model):
+    __tablename__ = 'messages'
+
+    id = db.Column(db.Integer, primary_key=True)
+    project_id = db.Column(db.Integer, db.ForeignKey('projects.id'), nullable=False)
+    user_id = db.Column(db.Integer, db.ForeignKey('users.id'), nullable=False)
+    content = db.Column(db.Text, nullable=False)
+    created_at = db.Column(db.DateTime, default=datetime.utcnow)
+
+    project = relationship('Project', backref='messages')
+    user = relationship('User', backref='messages')

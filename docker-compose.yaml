@@ -11,19 +11,6 @@ services:
     volumes:
       - ./u-front:/app
 
-  backend:
-    build:
-      context: u-back
-    ports:
-      - "5001:5000"
-    environment:
-      - FLASK_APP=app.py
-      - FLASK_ENV=development
-      - HOST=0.0.0.0
-    depends_on:
-      - db
-      - redis
-
   db:
     image: postgres:latest
     restart: always
@@ -40,4 +27,18 @@ services:
     image: redis:latest
     restart: always
     ports:
-      - "6380:6379"
+      - "6379:6379"
+
+  backend:
+    restart: always
+    build:
+      context: u-back
+    ports:
+      - "5001:5000"
+    environment:
+      - FLASK_APP=app.py
+      - FLASK_ENV=development
+      - HOST=0.0.0.0
+    depends_on:
+      - db
+      - redis

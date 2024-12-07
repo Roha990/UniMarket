@@ -49,7 +49,7 @@ const AdminPanel = () => {
                         <Nav.Link as={Link} to="/admin/users">Пользователи</Nav.Link>
                         <Nav.Link as={Link} to="/admin/projects">Проекты</Nav.Link>
                         <Nav.Link as={Link} to="/admin/skills">Список навыков</Nav.Link>
-                        <Nav.Link as={Link} to="/admin/project-direction">Список направление проектов</Nav.Link>
+                        <Nav.Link as={Link} to="/admin/direction">Список направление проектов</Nav.Link>
                     </Nav>
                 </Col>
                 <Col md={10} className="p-3">

@@ -3,7 +3,8 @@ import { Container, Row, Col, Spinner, Button, Form, Card } from 'react-bootstra
 import api from '../../services/apiService';
 import { useNavigate } from 'react-router-dom';
 import Select from 'react-select';
-import './ProjectsList.css'; // Import custom CSS
+import './ProjectsList.css';
+import { jwtDecode } from "jwt-decode"; // Import custom CSS
 
 const ProjectsList = () => {
     const [projects, setProjects] = useState([]);
@@ -14,11 +15,20 @@ const ProjectsList = () => {
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const navigate = useNavigate();
+    const token = localStorage.getItem('accessToken');
+    const decodedToken = token ? jwtDecode(token) : null;
+    const currentUserId = decodedToken ? decodedToken.sub : null;
 
     useEffect(() => {
         const fetchProjects = async () => {
             try {
-                const response = await api.get('/project/list');
+                const params = {};
+                if (filters.direction) params.direction = filters.direction;
+                if (filters.skills.length > 0) params.skills = filters.skills.join(',');
+                if (filters.status) params.status = filters.status;
+                if (currentUserId) params.current_user_id = currentUserId;
+
+                const response = await api.get('/project/list', { params });
                 setProjects(response.data.items);
                 setFilteredProjects(response.data.items);
                 setLoading(false);
@@ -55,7 +65,7 @@ const ProjectsList = () => {
         fetchProjects();
         fetchSkills();
         fetchDirections();
-    }, []);
+    }, [filters]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -74,13 +84,13 @@ const ProjectsList = () => {
 
     const handleFilterSubmit = async () => {
         try {
-            const response = await api.get('/project/list', {
-                params: {
-                    direction: filters.direction,
-                    skills: filters.skills.join(','),
-                    status: filters.status
-                }
-            });
+            const params = {};
+            if (filters.direction) params.direction = filters.direction;
+            if (filters.skills.length > 0) params.skills = filters.skills.join(',');
+            if (filters.status) params.status = filters.status;
+            if (currentUserId) params.current_user_id = currentUserId;
+
+            const response = await api.get('/project/list', { params });
             setFilteredProjects(response.data.items);
         } catch (error) {
             setError(error.message);
@@ -95,6 +105,37 @@ const ProjectsList = () => {
         navigate(`/project/${projectId}/details`);
     };
 
+    const handleApplyProject = async (projectId) => {
+        try {
+            const response = await api.post('/project/applications/apply', {
+                current_user_id: currentUserId,
+                project_id: projectId
+            });
+        } catch (error) {
+            alert(error.response.data.message);
+        }
+    };
+
+    const handleAcceptInvitation = async (projectId) => {
+        try {
+            const response = await api.post(`/project/applications/accept/${projectId}`, {
+                current_user_id: currentUserId
+            });
+        } catch (error) {
+            alert(error.response.data.message);
+        }
+    };
+
+    const handleRejectInvitation = async (projectId) => {
+        try {
+            const response = await api.post(`/project/applications/reject/${projectId}`, {
+                current_user_id: currentUserId
+            });
+        } catch (error) {
+            alert(error.response.data.message);
+        }
+    };
+
     const formatDate = (dateString) => {
         const date = new Date(dateString);
         const day = String(date.getDate()).padStart(2, '0');
@@ -104,6 +145,7 @@ const ProjectsList = () => {
         const minutes = String(date.getMinutes()).padStart(2, '0');
         return `${day}.${month}.${year} ${hours}:${minutes}`;
     };
+
     const truncateText = (text, maxLength) => {
         if (text.length > maxLength) {
             return text.substring(0, maxLength) + '...';
@@ -190,6 +232,16 @@ const ProjectsList = () => {
                                 <Card.Text><strong>Направление:</strong> {project.direction.join(', ')}</Card.Text>
                                 <Card.Text><strong>Статус:</strong> {project.status}</Card.Text>
                                 <Button variant="success" onClick={() => handleViewProject(project.id)}>Просмотреть</Button>
+                                {project.is_member ? (
+                                    <Button variant="secondary" disabled>Вы уже в проекте</Button>
+                                ) : project.has_invitation ? (
+                                    <>
+                                        <Button variant="primary" onClick={() => handleAcceptInvitation(project.id)}>Принять приглашение</Button>
+                                        <Button variant="danger" onClick={() => handleRejectInvitation(project.id)}>Отклонить приглашение</Button>
+                                    </>
+                                ) : (
+                                    <Button variant="primary" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
+                                )}
                             </Card.Body>
                         </Card>
                     ))}

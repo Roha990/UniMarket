@@ -13,6 +13,7 @@ const ProjectPanel = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [isOwner, setIsOwner] = useState(false);
+    const [isMember, setIsMember] = useState(false);
     const [showInviteModal, setShowInviteModal] = useState(false);
 
     useEffect(() => {
@@ -27,6 +28,11 @@ const ProjectPanel = () => {
                 const currentUserId = decodedToken ? decodedToken.sub : null;
 
                 setIsOwner(currentUserId == response.data.creator_id);
+
+                const membershipResponse = await api.get(`/project/${projectId}/is_member`, {
+                    params: { current_user_id: currentUserId }
+                });
+                setIsMember(membershipResponse.data.is_member);
             } catch (error) {
                 setError(error.message);
                 setLoading(false);
@@ -65,10 +71,13 @@ const ProjectPanel = () => {
                     <h4>Панель проекта</h4>
                     <Nav className="flex-column">
                         <Nav.Link as={Link} to={`/project/${projectId}/details`}>Основная информация</Nav.Link>
-                        <Nav.Link as={Link} to={`/project/${projectId}/members`}>Участники</Nav.Link>
-                        <Nav.Link as={Link} to={`/project/${projectId}/tasks`}>Задачи</Nav.Link>
+                                                {isMember && (
+                            <Nav.Link as={Link} to={`/project/${projectId}/chat`}>Чат</Nav.Link>
+                        )}
+
                         {isOwner && (
                             <>
+                                <Nav.Link as={Link} to={`/project/${projectId}/applications`}>Заявки в проект</Nav.Link>
                                 <br/>
                                 <Button variant="primary" onClick={handleInviteUser}>
                                     Пригласить участника

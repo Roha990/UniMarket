@@ -16,6 +16,9 @@ import ProjectProfile from "./pages/project/ProjectProfile";
 import ProjectLayout from "./pages/project/ProjectLayout";
 import InvitationsList from "./pages/InvitationsList";
 import UserProjects from "./pages/user/UserProjects";
+import ApplicationList from "./pages/project/ApplicationList";
+import ProjectChat from "./pages/project/ProjectChat";
+import AdminDirections from "./pages/admin/direction/AdminDirection";
 
 const router = createBrowserRouter([
     {
@@ -37,6 +40,10 @@ const router = createBrowserRouter([
                     {
                         path: "/admin/skills",
                         element: <AdminSkills />,
+                    },
+                     {
+                        path: "/admin/direction",
+                        element: <AdminDirections />,
                     },
                 ]
             },
@@ -74,7 +81,14 @@ const router = createBrowserRouter([
                 path: "/project/:projectId/details",
                 element: <ProjectProfile/>,
                     },
-
+                    {
+                path: "/project/:projectId/applications",
+                element: <ApplicationList/>,
+                    },
+                                        {
+                path: "/project/:projectId/chat",
+                element: <ProjectChat/>,
+                    },
                 ]
             },
             {

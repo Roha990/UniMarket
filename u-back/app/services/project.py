@@ -1,8 +1,9 @@
 from flask import jsonify, request
 from sqlalchemy import desc
+from sqlalchemy.orm import aliased
 
 from ..common import pageWrapper
-from ..models import Project, Invitation, User, UserProject, Skill, ProjectSkill, Direction, ProjectDirection
+from ..models import Project, Invitation, User, UserProject, Skill, ProjectSkill, Direction, ProjectDirection, Message
 from ..extensions import db
 
 
@@ -38,7 +39,7 @@ def create_project(data, creator_id):
     return jsonify({"msg": "Project created successfully"}), 201
 
 
-def get_projects(page, direction, skills, status):
+def get_projects(page, direction, skills, status, current_user_id):
     query = Project.query
 
     if direction:
@@ -55,15 +56,28 @@ def get_projects(page, direction, skills, status):
     projects = query.paginate(page=page, per_page=10, error_out=False)
     total_elements = projects.total
 
-    return pageWrapper([{
-        "id": project.id,
-        "title": project.title,
-        "description": project.description,
-        "skills": [skill.name for skill in project.skills],
-        "created_at": project.created_at,
-        "status": project.status,
-        "direction": [direction.name for direction in project.directions],
-    } for project in projects.items], page, total_elements)
+    # Aliases for subqueries
+    UserProjectAlias = aliased(UserProject)
+    InvitationAlias = aliased(Invitation)
+
+    project_list = []
+    for project in projects.items:
+        is_member = db.session.query(UserProjectAlias).filter_by(user_id=current_user_id, project_id=project.id).first() is not None
+        has_invitation = db.session.query(InvitationAlias).filter_by(user_id=current_user_id, project_id=project.id, status='pending').first() is not None
+
+        project_list.append({
+            "id": project.id,
+            "title": project.title,
+            "description": project.description,
+            "skills": [skill.name for skill in project.skills],
+            "created_at": project.created_at,
+            "status": project.status,
+            "direction": [direction.name for direction in project.directions],
+            "is_member": is_member,
+            "has_invitation": has_invitation
+        })
+
+    return pageWrapper(project_list, page, total_elements)
 
 
 def get_project(project_id):
@@ -124,7 +138,7 @@ def invite_user(project_id, current_user_id, data):
     if UserProject.query.filter_by(user_id=user_id, project_id=project_id).first():
         return jsonify({"message": "User is already a member of this project"}), 400
 
-    invitation = Invitation(project_id=project_id, user_id=user_id, description=f"Invitation to join project {project.title}")
+    invitation = Invitation(project_id=project_id, user_id=user_id, description=f"Invitation to join project {project.title}", type='invitation')
     db.session.add(invitation)
     db.session.commit()
 
@@ -167,3 +181,104 @@ def get_directions():
     return jsonify({
         "directions": directions_list,
     }), 200
+
+def create_new_direction(data):
+    direction_name = data.get('direction_name')
+
+    new_direction = Direction(name=direction_name)
+    db.session.add(new_direction)
+    db.session.commit()
+
+    return jsonify({
+        "msg": "new direction added",
+        "direction": {
+            "id": new_direction.id,
+            "name": new_direction.name
+        }
+    }), 201
+
+def apply_to_project(project_id, current_user_id):
+    project = Project.query.get_or_404(project_id)
+
+    if UserProject.query.filter_by(user_id=current_user_id, project_id=project_id).first():
+        return jsonify({"message": "Вы уже являетесь участником этого проекта."}), 400
+
+    if Invitation.query.filter_by(user_id=current_user_id, project_id=project_id, status='pending', type='application').first():
+        return jsonify({"message": "Вы уже подали заявку на участие в этом проекте."}), 400
+
+    application = Invitation(project_id=project_id, user_id=current_user_id, description=f"Application to join project {project.title}", type='application')
+    db.session.add(application)
+    db.session.commit()
+
+    return jsonify({"message": "Ваша заявка на участие в проекте успешно отправлена."}), 200
+
+def get_applications(project_id, current_user_id):
+    project = Project.query.get_or_404(project_id)
+
+    if int(project.creator_id) != int(current_user_id):
+        return jsonify({"message": "You are not the creator of this project"}), 403
+
+    applications = Invitation.query.filter_by(project_id=project_id, status='pending', type='application').all()
+
+    return jsonify([{
+        "id": application.id,
+        "user_id": application.user_id,
+        "description": application.description,
+        "status": application.status
+    } for application in applications]), 200
+
+def accept_application(application_id, current_user_id):
+    application = Invitation.query.filter_by(id=application_id, status='pending', type='application').first()
+
+    if not application:
+        return jsonify({"message": "No pending application found"}), 404
+
+    project = Project.query.get_or_404(application.project_id)
+
+    if int(project.creator_id) != int(current_user_id):
+        return jsonify({"message": "You are not the creator of this project"}), 403
+
+    application.status = 'accepted'
+    user_project = UserProject(user_id=application.user_id, project_id=application.project_id, role='member')
+    db.session.add(user_project)
+    db.session.commit()
+
+    return jsonify({"message": "Application accepted"}), 200
+
+def get_message(project_id):
+    messages = Message.query.filter_by(project_id=project_id).order_by(Message.created_at.asc()).all()
+    return jsonify([{
+        "id": message.id,
+        "user_id": message.user_id,
+        "username": message.user.username,
+        "content": message.content,
+        "created_at": message.created_at
+    } for message in messages]), 200
+
+
+
+def send_message(project_id, data, user_id):
+    content = data.get('content')
+
+    if not user_id or not content:
+        return jsonify({"message": "User ID and content are required"}), 400
+
+    project = Project.query.get_or_404(project_id)
+    user = User.query.get_or_404(user_id)
+
+    if user not in project.users:
+        return jsonify({"message": "You are not a member of this project"}), 403
+
+    message = Message(project_id=project_id, user_id=user_id, content=content)
+    db.session.add(message)
+    db.session.commit()
+
+    return jsonify({"message": "Message sent"}), 200
+
+def is_member(project_id, current_user_id):
+    if not current_user_id:
+        return jsonify({"message": "User ID is required"}), 400
+
+    is_member = UserProject.query.filter_by(user_id=current_user_id, project_id=project_id).first() is not None
+
+    return jsonify({"is_member": is_member}), 200

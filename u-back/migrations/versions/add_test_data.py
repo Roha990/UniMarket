@@ -71,6 +71,7 @@ invitation_table = table('invitations',
                          column('project_id', Integer),
                          column('user_id', Integer),
                          column('status', String),
+                         column('type', String),
                          column('created_at', DateTime)
                          )
 
@@ -80,11 +81,11 @@ def add_users():
         {'username': 'admin', 'full_name': 'Admin User', 'password': generate_password_hash('admin'), 'rating': 0,
          'description': 'Admin user', 'email': 'admin@example.com', 'phone_number': '1234567890', 'role': 'admin',
          'created_at': datetime.utcnow()},
-        {'username': 'test1', 'full_name': 'Test User 1', 'password': generate_password_hash('test'), 'rating': 0,
-         'description': 'Test user 1', 'email': 'testuser1@example.com', 'phone_number': '0987654321', 'role': 'user',
+        {'username': 'test1', 'full_name': 'Иванов Иван', 'password': generate_password_hash('test'), 'rating': 0,
+         'description': 'Занимаюсь много чем крутым. Имею стаж много лет и вообще крутышка', 'email': 'testuser1@example.com', 'phone_number': '0987654321', 'role': 'user',
          'created_at': datetime.utcnow()},
-        {'username': 'test2', 'full_name': 'Test User 2', 'password': generate_password_hash('test'), 'rating': 0,
-         'description': 'Test user 2', 'email': 'testuser2@example.com', 'phone_number': '0987654322', 'role': 'user',
+        {'username': 'test2', 'full_name': 'Кирилл Кириллов', 'password': generate_password_hash('test'), 'rating': 0,
+         'description': 'Привет. Я могу всякое и вообще я крутой.', 'email': 'testuser2@example.com', 'phone_number': '0987654322', 'role': 'user',
          'created_at': datetime.utcnow()}
     ]
     op.bulk_insert(user_table, users)
@@ -124,9 +125,30 @@ def add_directions():
 # Функция для добавления проектов
 def add_projects():
     projects = [
-        {'title': 'Project 1', 'description': 'Description for Project 1', 'creator_id': 1, 'created_at': datetime.utcnow(), 'direction_id': 1, 'status': 'active'},
-        {'title': 'Project 2', 'description': 'Description for Project 2', 'creator_id': 2, 'created_at': datetime.utcnow(), 'direction_id': 2, 'status': 'active'},
-        {'title': 'Project 3', 'description': 'Description for Project 3', 'creator_id': 3, 'created_at': datetime.utcnow(), 'direction_id': 3, 'status': 'active'}
+        {
+            'title': 'Проект "Умный дом"',
+            'description': 'Проект "Умный дом" направлен на создание интеллектуальной системы управления бытовыми устройствами. Основная цель проекта - повышение комфорта и безопасности жилья через автоматизацию и интеграцию различных устройств.',
+            'creator_id': 1,
+            'created_at': datetime.utcnow(),
+            'direction_id': 1,
+            'status': 'active'
+        },
+        {
+            'title': 'Проект "Экологический мониторинг"',
+            'description': 'Проект "Экологический мониторинг" фокусируется на разработке системы для отслеживания состояния окружающей среды. В рамках проекта будут использованы датчики и сенсоры для сбора данных о качестве воздуха, воды и почвы, а также для анализа этих данных.',
+            'creator_id': 2,
+            'created_at': datetime.utcnow(),
+            'direction_id': 2,
+            'status': 'active'
+        },
+        {
+            'title': 'Проект "Образовательная платформа"',
+            'description': 'Проект "Образовательная платформа" направлен на создание онлайн-платформы для обучения и профессионального развития. Платформа будет включать в себя курсы, вебинары, тесты и другие образовательные материалы, доступные для широкой аудитории.',
+            'creator_id': 3,
+            'created_at': datetime.utcnow(),
+            'direction_id': 3,
+            'status': 'active'
+        }
     ]
     op.bulk_insert(project_table, projects)
 
@@ -178,9 +200,9 @@ def add_project_directions():
 # Функция для добавления приглашений
 def add_invitations():
     invitations = [
-        {'description': 'Invitation for Project 1', 'project_id': 1, 'user_id': 2, 'status': 'pending', 'created_at': datetime.utcnow()},
-        {'description': 'Invitation for Project 2', 'project_id': 2, 'user_id': 3, 'status': 'pending', 'created_at': datetime.utcnow()},
-        {'description': 'Invitation for Project 3', 'project_id': 3, 'user_id': 1, 'status': 'pending', 'created_at': datetime.utcnow()}
+        {'description': 'Invitation for Project 1', 'project_id': 1, 'user_id': 2, 'status': 'pending', 'created_at': datetime.utcnow(), 'type': 'invitation'},
+        {'description': 'Invitation for Project 2', 'project_id': 2, 'user_id': 3, 'status': 'pending', 'created_at': datetime.utcnow(), 'type': 'invitation'},
+        {'description': 'Invitation for Project 3', 'project_id': 3, 'user_id': 1, 'status': 'pending', 'created_at': datetime.utcnow(), 'type': 'invitation'}
     ]
     op.bulk_insert(invitation_table, invitations)
 
