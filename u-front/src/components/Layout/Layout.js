@@ -18,34 +18,53 @@ const LayoutBase = () => {
                     <Outlet />
                 </Col>
             </Row>
-            <Row className="footer-row bg-light py-2">
-                <Col md={4} className="d-flex flex-column align-items-start ps-3">
-                    <h6>Связь с нами</h6>
-                    <p className="mb-1">Адрес: ул. Примера, д. 1</p>
-                    <p className="mb-1">Телефон: +7 (123) 456-78-90</p>
-                    <div className="d-flex">
-                        <a href="https://vk.com" target="_blank" rel="noopener noreferrer" className="me-2 text-dark">
-                            <FaVk size={18} />
-                        </a>
-                        <a href="https://telegram.org" target="_blank" rel="noopener noreferrer" className="text-dark">
-                            <FaTelegram size={18} />
-                        </a>
-                    </div>
-                </Col>
-                <Col md={4} className="d-flex flex-column align-items-start ps-3">
-                    <a href="/about-platform" className="mb-1 text-dark text-decoration-none">О нас</a>
-                    <a href="/about-platform" className="mb-1 text-dark text-decoration-none">О платформе</a>
-                </Col>
-                <Col md={4} className="d-flex flex-column align-items-start ps-3">
-                    <h6>Возникли вопросы?</h6>
-                    <p className="mb-1">
-                        Напишите нам на почту <a href="mailto:unimarket@mail.ru" className="text-dark text-decoration-none">unimarket@mail.ru</a>
-                    </p>
-                </Col>
-                <Col className="text-center mt-3">
-                    UniMarket © {new Date().getFullYear()} Все права защищены
-                </Col>
-            </Row>
+            <footer className="bg-dark text-light py-4 mt-5">
+                <Container>
+                    <Row className="align-items-start text-center text-md-start">
+                        {/* Связь с нами */}
+                        <Col md={4} className="mb-4 mb-md-0">
+                            <h5 className="text-uppercase">Связь с нами</h5>
+                            <p className="mb-1">Адрес: ул. Примера, д. 1</p>
+                            <p className="mb-1">Телефон: +7 (123) 456-78-90</p>
+                            <p>Почта: <a href="mailto:unimarket@mail.ru" className="text-light">unimarket@mail.ru</a></p>
+                        </Col>
+
+                        {/* Быстрые ссылки */}
+                        <Col md={4} className="mb-4 mb-md-0">
+                            <h5 className="text-uppercase">Быстрые ссылки</h5>
+                            <ul className="list-unstyled">
+                                <li><a href="/" className="text-light text-decoration-none">Главная</a></li>
+                                <li><a href="/create-project" className="text-light text-decoration-none">Создать проект</a></li>
+                                <li><a href="/projects" className="text-light text-decoration-none">Найти проект</a></li>
+                                <li><a href="/about-platform" className="text-light text-decoration-none">О нас</a></li>
+                            </ul>
+                        </Col>
+
+                        {/* Социальные сети */}
+                        <Col md={4} className="text-md-end">
+                            <h5 className="text-uppercase">Следите за нами в соц.сетях</h5>
+                            <div className="d-flex justify-content-center justify-content-md-end">
+                                <a href="https://vk.com" className="text-light mx-2" target="_blank" rel="noopener noreferrer">
+                                    <FaVk size={24} />
+                                </a>
+                                <a href="https://telegram.org" className="text-light mx-2" target="_blank" rel="noopener noreferrer">
+                                    <FaTelegram size={24} />
+                                </a>
+                            </div>
+                        </Col>
+                    </Row>
+                    <hr className="bg-light" />
+                    <Row>
+                        <Col className="text-center">
+                            <p className="mb-0">
+                                © {new Date().getFullYear()} UniMarket. Все права защищены.
+                            </p>
+                        </Col>
+                    </Row>
+                </Container>
+            </footer>
+
+
         </Container>
     );
 };
