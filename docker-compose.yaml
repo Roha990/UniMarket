@@ -20,8 +20,6 @@ services:
       - FLASK_APP=app.py
       - FLASK_ENV=development
       - HOST=0.0.0.0
-    volumes:
-      - ./u-back:/app
     depends_on:
       - db
       - redis
