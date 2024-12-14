@@ -31,6 +31,15 @@ const InvitationsList = () => {
         }
     };
 
+    const handleRejectInvitation = async (invitationId) => {
+        try {
+            await api.put(`/user/invitations/${invitationId}/reject`);
+            setInvitations(invitations.filter(invitation => invitation.id !== invitationId));
+        } catch (error) {
+            setError(error.message);
+        }
+    };
+
     if (error) {
         return <div>Error: {error}</div>;
     }
@@ -61,6 +70,9 @@ const InvitationsList = () => {
                                 <Card.Text>{invitation.description}</Card.Text>
                                 <Button variant="success" onClick={() => handleAcceptInvitation(invitation.id)}>
                                     Принять
+                                </Button>
+                                <Button variant="danger" onClick={() => handleRejectInvitation(invitation.id)}>
+                                    Отклонить
                                 </Button>
                             </Card.Body>
                         </Card>

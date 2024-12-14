@@ -25,7 +25,7 @@ const UserProfile = () => {
                 const decodedToken = token ? jwtDecode(token) : null;
                 const currentUserId = decodedToken ? decodedToken.sub : null;
 
-                setIsOwner(currentUserId === parseInt(userId, 10));
+                setIsOwner(currentUserId == parseInt(userId, 10));
             } catch (error) {
                 setError(error.message);
                 setLoading(false);

@@ -127,10 +127,9 @@ const CreateProject = () => {
                             <Select
                                 isMulti
                                 options={allSkills}
-                                value={projectData.skills.map(skill => ({
-                                    value: skill,
-                                    label: skill
-                                }))}
+                                value={projectData.skills.map(skillId =>
+                                    allSkills.find(skill => skill.value === skillId)
+                                )}
                                 onChange={handleSkillChange}
                             />
                         </Form.Group>
@@ -139,10 +138,7 @@ const CreateProject = () => {
                             <Form.Label>Направление</Form.Label>
                             <Select
                                 options={allDirections}
-                                value={{
-                                    value: projectData.direction,
-                                    label: allDirections.find(d => d.value === projectData.direction)?.label
-                                }}
+                                value={allDirections.find(direction => direction.value === projectData.direction)}
                                 onChange={handleDirectionChange}
                                 required
                             />

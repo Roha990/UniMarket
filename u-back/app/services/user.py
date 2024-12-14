@@ -3,7 +3,7 @@ from flask import jsonify
 from ..common import errorWrapper, pageWrapper
 from ..models import User, Skill, UserSkill, Invitation, UserProject, Project, Review
 from ..extensions import db
-from sqlalchemy import desc
+from sqlalchemy import desc, func
 
 
 def get_user_info(user_id):
@@ -40,9 +40,20 @@ def accept_invitation(invitation_id, current_user_id):
     if not invitation:
         return jsonify({"message": "No pending invitation found"}), 404
 
-    invitation.status = 'accepted'
     user_project = UserProject(user_id=current_user_id, project_id=invitation.project_id, role='member')
     db.session.add(user_project)
+    db.session.delete(invitation)
+    db.session.commit()
+
+    return jsonify({"message": "Invitation accepted"}), 200
+
+def decline_invitation(invitation_id, current_user_id):
+    invitation = Invitation.query.filter_by(id=invitation_id, user_id=current_user_id, status='pending', type='invitation').first()
+
+    if not invitation:
+        return jsonify({"message": "No pending invitation found"}), 404
+
+    db.session.delete(invitation)
     db.session.commit()
 
     return jsonify({"message": "Invitation accepted"}), 200
@@ -59,9 +70,6 @@ def get_users(page, skills, project_id):
 
         subquery = db.session.query(Invitation.user_id).filter_by(project_id=project_id, status='pending')
         query = query.filter(~User.id.in_(subquery))
-
-        query = query.join(User.projects).filter(Project.id == project_id)
-        query = query.order_by(desc(Project.created_at))
     users = query.paginate(page=page, per_page=10, error_out=False)
     total_elements = users.total
 
@@ -191,3 +199,29 @@ def create_user_review(user_id, data, reviewer_id):
     db.session.commit()
 
     return jsonify({"msg": "Review created successfully"}), 201
+
+def get_recommended_projects(user_id):
+    user = User.query.get_or_404(user_id)
+    user_skills = [skill.id for skill in user.skills]
+
+    recommended_projects = (
+        Project.query
+        .join(Project.skills)
+        .filter(
+            (Skill.id.in_(user_skills)) &
+            (~Project.users.any(User.id == user_id))
+        )
+        .order_by(func.random())
+        .limit(5)
+        .all()
+    )
+
+    return jsonify([{
+        "id": project.id,
+        "title": project.title,
+        "description": project.description,
+        "skills": [skill.name for skill in project.skills],
+        "created_at": project.created_at,
+        "status": project.status,
+        "direction": [direction.name for direction in project.directions],
+    } for project in recommended_projects]), 200

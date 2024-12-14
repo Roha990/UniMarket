@@ -31,3 +31,28 @@
     height: 600px;
     overflow-y: auto;
 }
+
+.recommended-project-card {
+    border: 2px solid #007bff;
+    background-color: #f0f8ff;
+}
+
+.recommended-project-card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.2);
+}
+
+.recommended-project-card .card-title {
+    font-size: 1.5rem;
+    margin-bottom: 0.5rem;
+    color: #007bff;
+}
+
+.recommended-project-card .card-text {
+    font-size: 1rem;
+    color: #555;
+}
+
+.recommended-project-card .btn {
+    margin-top: 1rem;
+}

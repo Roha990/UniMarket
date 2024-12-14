@@ -1,7 +1,7 @@
 from flask import Blueprint, request
 from flask_jwt_extended import jwt_required, get_jwt, get_jwt_identity
 from ..common import getRouterGroupURL
-from ..services.user import get_user_info, update_user_info, delete_user, get_users, get_invitations, accept_invitation, get_user_projects, get_user_last_project, get_user_reviews, create_user_review
+from ..services.user import get_user_info, get_recommended_projects, update_user_info, decline_invitation,delete_user, get_users, get_invitations, accept_invitation, get_user_projects, get_user_last_project, get_user_reviews, create_user_review
 
 bp = Blueprint('user', __name__)
 routeGroup = getRouterGroupURL('/user')
@@ -21,6 +21,12 @@ def get_invitations_route():
 def accept_invitation_route(invitation_id):
     current_user_id = get_jwt_identity()
     return accept_invitation(invitation_id, current_user_id)
+
+@bp.route(routeGroup+'/invitations/<int:invitation_id>/reject', methods=['PUT'])
+@jwt_required()
+def reject_invitation_route(invitation_id):
+    current_user_id = get_jwt_identity()
+    return decline_invitation(invitation_id, current_user_id)
 
 @bp.route(routeGroup + "/<int:user_id>", methods=['PUT'])
 @jwt_required()
@@ -60,3 +66,7 @@ def get_user_reviews_route(user_id):
 @jwt_required()
 def create_user_review_route(user_id):
     return create_user_review(user_id, request.get_json(), get_jwt_identity())
+
+@bp.route(routeGroup + '/<int:user_id>/recommended_projects', methods=['GET'])
+def get_recommended_projects_route(user_id):
+    return get_recommended_projects(user_id)

@@ -14,6 +14,7 @@ const ProjectsList = () => {
     const [allDirections, setAllDirections] = useState([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
+    const [recommendedProjects, setRecommendedProjects] = useState([]);
     const navigate = useNavigate();
     const token = localStorage.getItem('accessToken');
     const decodedToken = token ? jwtDecode(token) : null;
@@ -62,10 +63,24 @@ const ProjectsList = () => {
             }
         };
 
+        const fetchRecommendedProjects = async () => {
+            try {
+                const response = await api.get(`/user/${currentUserId}/recommended_projects`);
+                setRecommendedProjects(response.data);
+            } catch (error) {
+                if (error.response && error.response.status === 404) {
+                    setRecommendedProjects([]);
+                } else {
+                    setError(error.message);
+                }
+            }
+        };
+
         fetchProjects();
         fetchSkills();
         fetchDirections();
-    }, [filters]);
+        fetchRecommendedProjects();
+    }, [filters, currentUserId]);
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -111,26 +126,12 @@ const ProjectsList = () => {
                 current_user_id: currentUserId,
                 project_id: projectId
             });
-        } catch (error) {
-            alert(error.response.data.message);
-        }
-    };
 
-    const handleAcceptInvitation = async (projectId) => {
-        try {
-            const response = await api.post(`/project/applications/accept/${projectId}`, {
-                current_user_id: currentUserId
-            });
-        } catch (error) {
-            alert(error.response.data.message);
-        }
-    };
-
-    const handleRejectInvitation = async (projectId) => {
-        try {
-            const response = await api.post(`/project/applications/reject/${projectId}`, {
-                current_user_id: currentUserId
-            });
+            setFilteredProjects(prevProjects =>
+                prevProjects.map(project =>
+                    project.id === projectId ? { ...project, has_invitation: true } : project
+                )
+            );
         } catch (error) {
             alert(error.response.data.message);
         }
@@ -214,14 +215,14 @@ const ProjectsList = () => {
                                 <option value="completed">Завершенные</option>
                             </Form.Control>
                         </Form.Group>
-                        <br/>
+                        <br />
                         <Button variant="primary" onClick={handleFilterSubmit}>
                             Фильтровать
                         </Button>
                     </Form>
-                    <br/>
+                    <br />
                 </Col>
-                <Col md={9}>
+                <Col md={6}>
                     {filteredProjects.map(project => (
                         <Card key={project.id} className="project-card mb-3">
                             <Card.Body>
@@ -235,10 +236,7 @@ const ProjectsList = () => {
                                 {project.is_member ? (
                                     <Button variant="secondary" disabled>Вы уже в проекте</Button>
                                 ) : project.has_invitation ? (
-                                    <>
-                                        <Button variant="primary" onClick={() => handleAcceptInvitation(project.id)}>Принять приглашение</Button>
-                                        <Button variant="danger" onClick={() => handleRejectInvitation(project.id)}>Отклонить приглашение</Button>
-                                    </>
+                                    <Button variant="secondary" disabled>Вы уже подали заявку</Button>
                                 ) : (
                                     <Button variant="primary" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
                                 )}
@@ -246,6 +244,31 @@ const ProjectsList = () => {
                         </Card>
                     ))}
                 </Col>
+                {recommendedProjects.length > 0 && (
+                    <Col md={3}>
+                        <h4>Рекомендательные проекты</h4>
+                        {recommendedProjects.map(project => (
+                            <Card key={project.id} className="recommended-project-card mb-3">
+                                <Card.Body>
+                                    <Card.Title>{truncateText(project.title, 50)}</Card.Title>
+                                    <Card.Text>{truncateText(project.description, 100)}</Card.Text>
+                                    <Card.Text><strong>Навыки:</strong> {project.skills.join(', ')}</Card.Text>
+                                    <Card.Text><strong>Создано:</strong> {formatDate(project.created_at)}</Card.Text>
+                                    <Card.Text><strong>Направление:</strong> {project.direction.join(', ')}</Card.Text>
+                                    <Card.Text><strong>Статус:</strong> {project.status}</Card.Text>
+                                    <Button variant="success" onClick={() => handleViewProject(project.id)}>Просмотреть</Button>
+                                    {project.is_member ? (
+                                        <Button variant="secondary" disabled>Вы уже в проекте</Button>
+                                    ) : project.has_invitation ? (
+                                        <Button variant="secondary" disabled>Вы уже подали заявку</Button>
+                                    ) : (
+                                        <Button variant="primary" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
+                                    )}
+                                </Card.Body>
+                            </Card>
+                        ))}
+                    </Col>
+                )}
             </Row>
         </Container>
     );

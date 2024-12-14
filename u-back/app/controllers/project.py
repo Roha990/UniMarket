@@ -2,7 +2,7 @@ from flask import Blueprint, request, jsonify
 from flask_jwt_extended import jwt_required, get_jwt,get_jwt_identity
 from ..common import getRouterGroupURL
 from ..services.project import (create_project, get_projects, get_project, update_project, delete_project, update_user_role, get_project_users,
-                                invite_user, get_directions, apply_to_project, get_applications, accept_application, get_message, send_message, is_member, create_new_direction)
+                                invite_user, get_directions, get_similar_projects, apply_to_project, get_applications, accept_application, get_message, send_message, is_member, create_new_direction, decline_application)
 
 bp = Blueprint('project', __name__)
 routeGroup = getRouterGroupURL('/project')
@@ -84,6 +84,12 @@ def accept_application_route(application_id):
     current_user_id = get_jwt_identity()
     return accept_application(application_id, current_user_id)
 
+@bp.route(routeGroup + '/applications/reject/<int:application_id>', methods=['POST'])
+@jwt_required()
+def decline_application_route(application_id):
+    current_user_id = get_jwt_identity()
+    return decline_application(application_id, current_user_id)
+
 @bp.route( routeGroup +'/<int:project_id>/messages', methods=['GET'])
 @jwt_required()
 def get_messages_route(project_id):
@@ -103,3 +109,8 @@ def is_member_route(project_id):
 def create_new_direction_route():
     data = request.json
     return create_new_direction(data)
+
+
+@bp.route(routeGroup +'/<int:project_id>/similar', methods=['GET'])
+def get_similar_projects_route(project_id):
+    return get_similar_projects(project_id)

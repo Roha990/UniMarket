@@ -13,7 +13,12 @@ const NavbarComponent = () => {
     const isAuthenticated = !!localStorage.getItem('accessToken');
     const token = localStorage.getItem('accessToken');
     const decodedToken = token ? jwtDecode(token) : null;
-    const isAdmin = decodedToken && decodedToken.user.role === 'admin';
+    let isAdmin = false;
+    let fullName = "";
+    if (decodedToken && decodedToken.user){
+         isAdmin = decodedToken.user.role === 'admin';
+         fullName = decodedToken.user.full_name;
+    }
 
     const logoutSubmit = async () => {
         await logout();
@@ -44,7 +49,7 @@ const NavbarComponent = () => {
                             <NavDropdown title={
                                 <>
                                     <BsPersonCircle/>
-                                     {` ${decodedToken.user.full_name}`}
+                                     {` ${fullName}`}
                                 </>
                             } id="basic-nav-dropdown">
                                 <NavDropdown.Item as={Link} to={`/user/${decodedToken.sub}/profile`}>Мой профиль</NavDropdown.Item>

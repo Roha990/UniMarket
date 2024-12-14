@@ -14,6 +14,26 @@
     font-size: 16px;
 }
 
+.project-owner {
+    margin-bottom: 15px;
+    font-size: 16px;
+}
+
+.project-owner strong {
+    font-weight: bold;
+    margin-right: 5px;
+}
+
+.user-link {
+    text-decoration: none;
+    color: #007bff;
+}
+
+.user-link:hover {
+    text-decoration: underline;
+}
+
+
 .project-description strong,
 .project-status strong,
 .project-created strong,
