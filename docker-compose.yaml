@@ -8,6 +8,8 @@ services:
       - "3000:3000"
     depends_on:
       - backend
+    volumes:
+      - ./u-front:/app
 
   db:
     image: postgres:latest
