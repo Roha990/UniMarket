@@ -26,7 +26,7 @@ const NavbarComponent = () => {
     };
 
     return (
-        <Navbar expand="lg" className="bg-body-tertiary">
+        <Navbar expand="lg" style={{ backgroundColor: '#97c8c8'}}>
             <Container>
                 <Navbar.Brand as={Link} to="/">
                     <img

@@ -108,20 +108,31 @@ const UserProfile = () => {
                             <div className="user-profile-header">
                                 <BsPersonCircle className="user-profile-icon" />
                                 <div className="user-profile-info">
-                                    <Card.Title>{data.username}</Card.Title>
-                                    <Card.Text>{data.full_name}</Card.Text>
-                                    <Card.Text>{data.role}</Card.Text>
+                                    <Card.Title className="fs-4">{data.username}</Card.Title>
+                                    <Card.Text className="fs-4 fw-bold">{data.full_name}</Card.Text>
+                                    <Card.Text className="fs-6 text-muted mt-1">{data.role}</Card.Text>
                                 </div>
+                                <Card.Text className="d-flex align-items-center mt-2">
+                                    <span className="text-muted me-2 fs-7">Рейтинг:</span>
+                                    <div className="fs-4">{data.rating} {renderStars(data.rating)}</div>
+                                </Card.Text>
                             </div>
-                            <hr />
-                            <Card.Text><strong>Электронная почта:</strong> {data.email}</Card.Text>
-                            <Card.Text><strong>Номер телефона:</strong> {data.phone_number}</Card.Text>
+                            <h5 className="mt-4 mb-3 cus-title">Контактная информация</h5>
+                            <hr className="my-2" />
+                            <div className="d-flex justify-content-between">
+                                <span>Электронная почта:</span>
+                                <span>{data.email}</span>
+                            </div>
+                            <div className="d-flex justify-content-between">
+                                <span>Номер телефона:</span>
+                                <span>{data.phone_number}</span>
+                            </div>
+                            <h5 className="mt-4 mb-3 cus-title">Описание</h5>
+                            <hr className="my-2" />
+                            <Card.Text> {data.description}</Card.Text>
+                            <h5 className="mt-4 mb-3 cus-title">Навыки</h5>
+                            <hr className="my-2" />
                             <Card.Text>
-                                <strong>Рейтинг:</strong> {data.rating} {renderStars(data.rating)}
-                            </Card.Text>
-                            <Card.Text><strong>Описание:</strong> {data.description}</Card.Text>
-                            <Card.Text>
-                                <strong>Навыки:</strong>
                                 <div className="user-profile-skills">
                                     {data.skills.map((skill, index) => (
                                         <span
@@ -140,7 +151,8 @@ const UserProfile = () => {
                                     ))}
                                 </div>
                             </Card.Text>
-                            <Card.Text><strong>Последний проект:</strong></Card.Text>
+                            <h5 className="mt-4 mb-3 cus-title">Последний проект</h5>
+                            <hr className="my-2" />
                             {lastProject && (
                                 <Card className="mb-3">
                                     <Card.Body>

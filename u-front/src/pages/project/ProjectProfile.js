@@ -4,6 +4,7 @@ import api from '../../services/apiService';
 import { useParams, Link } from 'react-router-dom';
 import { FaCalendarAlt, FaUsers, FaTags, FaCheckCircle } from 'react-icons/fa';
 import './ProjectProfile.css'; // Добавим CSS для стилизации
+import { getRandomColor } from "../../shared/scripts";
 
 const ProjectDetail = () => {
     const { projectId } = useParams();
@@ -62,38 +63,85 @@ const ProjectDetail = () => {
     return (
         <Container>
             <Row className="justify-content-center mt-5">
+    
                 <Col md={8}>
-                    <Card>
+                    <Card className="shadow mb-4 position-relative border-0">
                         <Card.Body>
-                            <Card.Title className="project-title">{project.title}</Card.Title>
+                            {/* Статус проекта */}
+                            <div className="project-status-badge position-absolute top-0 end-0 mt-1 me-2 fs-5">
+                            <Badge bg={project.status === 'active' ? 'success' : 'danger'}>{project.status}</Badge>
+                            </div>
+    
+                            {/* Заголовок */}
+                            <Card.Title className="project-title text-center fs-3 mb-4" style={{ color: '#003366' }}>{project.title}</Card.Title>
+    
+                            {/* Владелец проекта */}
                             <Card.Text className="project-owner">
-                                <FaUsers className="text-info" />
-                                <strong>Владелец проекта:</strong> <Link to={`/user/${creator.id}/profile`} className="user-link">{creator.username}</Link>
+                                <FaUsers className="text-info me-2" />
+                                <strong className="text-dark">Владелец проекта:</strong>{' '}
+                                <Link to={`/user/${creator.id}/profile`} className="user-link text-primary fw-bold">
+                                    {creator.username}
+                                </Link>
                             </Card.Text>
-                            <Card.Text className="project-status">
-                                <FaCheckCircle className={project.status === 'active' ? 'text-success' : 'text-danger'} />
-                                <strong>Статус:</strong> <Badge bg={project.status === 'active' ? 'success' : 'danger'}>{project.status}</Badge>
-                            </Card.Text>
-                            <Card.Text className="project-created">
-                                <FaCalendarAlt className="text-primary" />
-                                <strong>Создано:</strong> {new Date(project.created_at).toLocaleString()}
-                            </Card.Text>
+    
+                            {/* Навыки */}
                             <Card.Text className="project-skills">
-                                <FaTags className="text-warning" />
-                                <strong>Навыки:</strong> {project.skills.join(', ')}
+                                <FaTags className="text-warning me-2" />
+                                <strong className="text-dark">Навыки:</strong>
+                                <div className="skills-container mt-2">
+                                    {project.skills.map((skill, index) => (
+                                        <span
+                                            key={index}
+                                            style={{
+                                                backgroundColor: getRandomColor(),
+                                                color: 'white',
+                                                padding: '5px 10px',
+                                                marginRight: '5px',
+                                                borderRadius: '5px',
+                                                display: 'inline-block'
+                                            }}
+                                        
+                                        >
+                                            {skill}
+                                        </span>
+                                    ))}
+                                </div>
                             </Card.Text>
-                            <Card.Text className="project-description"><strong>Описание:</strong> {project.description}</Card.Text>
+    
+                            {/* Описание */}
+                            <Card.Text className="project-description">
+                                <strong className="text-dark">Описание:</strong> {project.description}
+                            </Card.Text>
+    
+                            {/* Дата создания */}
+                            <div className="d-flex justify-content-end mt-auto text-muted">
+                                <div className="d-flex align-items-center">
+                                    <FaCalendarAlt className="text-primary me-2" />
+                                    <strong className="text-dark">Создано: </strong> {new Date(project.created_at).toLocaleString()}
+                                </div>
+                            </div>
                         </Card.Body>
                     </Card>
                 </Col>
+    
+                {/* Участники */}
                 <Col md={4}>
-                    <Card>
+                    <Card className="border-0" style={{ backgroundColor: '#f0f8ff' }}>
                         <Card.Body>
-                            <Card.Title className="project-users-title">Участники</Card.Title>
+                            <Card.Title className="project-users-title text-primary">Участники</Card.Title>
                             <ListGroup variant="flush">
                                 {project.users.map(user => (
-                                    <ListGroup.Item key={user.id} action>
-                                        <Link to={`/user/${user.id}/profile`} className="user-link">
+                                    <ListGroup.Item
+                                        key={user.id}
+                                        action
+                                        style={{
+                                            backgroundColor: '#e8f4fc',
+                                            border: '1px solid #d1e7ff',
+                                            borderRadius: '5px',
+                                            marginBottom: '5px'
+                                        }}
+                                    >
+                                        <Link to={`/user/${user.id}/profile`} className="user-link text-primary fw-bold">
                                             {user.username}
                                         </Link>
                                     </ListGroup.Item>
@@ -103,26 +151,38 @@ const ProjectDetail = () => {
                     </Card>
                 </Col>
             </Row>
+    
+            {/* Похожие проекты */}
             <Row className="mt-5">
                 <Col>
-                    <h4>Похожие проекты</h4>
+                    <h4 className="text-primary">Похожие проекты</h4>
                     {similarProjects.map(project => (
-                        <Card key={project.id} className="project-card mb-3">
+                        <Card key={project.id} className="project-card mb-3 shadow-sm border-0">
                             <Card.Body>
-                                <Card.Title>{project.title}</Card.Title>
-                                <Card.Text>{project.description}</Card.Text>
-                                <Card.Text><strong>Навыки:</strong> {project.skills.join(', ')}</Card.Text>
-                                <Card.Text><strong>Создано:</strong> {new Date(project.created_at).toLocaleString()}</Card.Text>
-                                <Card.Text><strong>Направление:</strong> {project.direction.join(', ')}</Card.Text>
-                                <Card.Text><strong>Статус:</strong> {project.status}</Card.Text>
-                                <Link to={`/project/${project.id}/details`} className="btn btn-success">Просмотреть</Link>
+                                <Card.Title className="text-primary">{project.title}</Card.Title>
+                                <Card.Text className="text-dark">{project.description}</Card.Text>
+                                <Card.Text>
+                                    <strong className="text-dark">Навыки:</strong> {project.skills.join(', ')}
+                                </Card.Text>
+                                <Card.Text>
+                                    <strong className="text-dark">Создано:</strong> {new Date(project.created_at).toLocaleString()}
+                                </Card.Text>
+                                <Card.Text>
+                                    <strong className="text-dark">Направление:</strong> {project.direction.join(', ')}
+                                </Card.Text>
+                                <Card.Text>
+                                    <strong className="text-dark">Статус:</strong> {project.status}
+                                </Card.Text>
+                                <Link to={`/project/${project.id}/details`} className="btn btn-info text-white">
+                                    Просмотреть
+                                </Link>
                             </Card.Body>
                         </Card>
                     ))}
                 </Col>
             </Row>
-        </Container>
-    );
+            </Container>
+);
 };
 
 export default ProjectDetail;
