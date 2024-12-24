@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { Container, Row, Col, Spinner, Button, Card } from 'react-bootstrap';
 import api from '../../services/apiService';
-import { useParams } from 'react-router-dom';
+import {Link, useParams} from 'react-router-dom';
 import { jwtDecode } from "jwt-decode";
 
 const ApplicationsList = () => {
@@ -78,7 +78,9 @@ const ApplicationsList = () => {
                     {applications.map(application => (
                         <Card key={application.id} className="application-card mb-3">
                             <Card.Body>
-                                <Card.Title>Заявка от пользователя {application.user_id}</Card.Title>
+                                <Link to={`/user/${application.user_id}/profile`} className="user-link text-primary fw-bold">
+                                    {application.username}
+                                </Link>
                                 <Card.Text>{application.description}</Card.Text>
                                 <Button variant="success" onClick={() => handleAcceptApplication(application.id)}>Принять</Button>
                                 <Button variant="danger" onClick={() => handleRejectApplication(application.id)}>Отклонить</Button>

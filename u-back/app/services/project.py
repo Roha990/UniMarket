@@ -217,11 +217,17 @@ def get_applications(project_id, current_user_id):
     if int(project.creator_id) != int(current_user_id):
         return jsonify({"message": "You are not the creator of this project"}), 403
 
-    applications = Invitation.query.filter_by(project_id=project_id, status='pending', type='application').all()
+    applications = (
+        Invitation.query
+        .join(User, Invitation.user_id == User.id)
+        .filter(Invitation.project_id == project_id, Invitation.status == 'pending', Invitation.type == 'application')
+        .all()
+    )
 
     return jsonify([{
         "id": application.id,
         "user_id": application.user_id,
+        "username": application.user.username,
         "description": application.description,
         "status": application.status
     } for application in applications]), 200
