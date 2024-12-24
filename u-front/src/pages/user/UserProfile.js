@@ -41,7 +41,7 @@ const UserProfile = () => {
                 const token = localStorage.getItem('accessToken');
                 if (token) {
                     const decodedToken = jwtDecode(token);
-                    setIsOwnProfile(decodedToken.userId === userId);
+                    setIsOwnProfile(decodedToken.userId == userId);
                 }
 
                 setLoading(false);
