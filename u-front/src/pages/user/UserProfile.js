@@ -16,6 +16,7 @@ const UserProfile = () => {
     const [error, setError] = useState(null);
     const [loading, setLoading] = useState(true);
     const [showAddReview, setShowAddReview] = useState(false);
+    const [isOwnProfile, setIsOwnProfile] = useState(false);
 
     useEffect(() => {
         const fetchUserData = async () => {
@@ -26,8 +27,23 @@ const UserProfile = () => {
                 const reviewsResponse = await api.get(`/user/${userId}/reviews`);
                 setReviews(reviewsResponse.data);
 
-                const lastProjectResponse = await api.get(`/user/${userId}/last-project`);
-                setLastProject(lastProjectResponse.data);
+                try {
+                    const lastProjectResponse = await api.get(`/user/${userId}/last-project`);
+                    setLastProject(lastProjectResponse.data);
+                } catch (projectError) {
+                    if (projectError.response && projectError.response.status === 404) {
+                        setLastProject(null);
+                    } else {
+                        setError(projectError.message);
+                    }
+                }
+
+                const token = localStorage.getItem('accessToken');
+                if (token) {
+                    const decodedToken = jwtDecode(token);
+                    setIsOwnProfile(decodedToken.userId === userId);
+                }
+
                 setLoading(false);
             } catch (error) {
                 setError(error.message);
@@ -59,10 +75,7 @@ const UserProfile = () => {
     };
 
     const handleAddReview = () => {
-        const token = localStorage.getItem('accessToken');
-        if (token) {
-            setShowAddReview(true);
-        }
+        setShowAddReview(true);
     };
 
     const handleCloseAddReview = () => {
@@ -151,17 +164,19 @@ const UserProfile = () => {
                                     ))}
                                 </div>
                             </Card.Text>
-                            <h5 className="mt-4 mb-3 cus-title">Последний проект</h5>
-                            <hr className="my-2" />
                             {lastProject && (
-                                <Card className="mb-3">
-                                    <Card.Body>
-                                        <Card.Title>{lastProject.title}</Card.Title>
-                                        <Card.Text>{lastProject.description}</Card.Text>
-                                        <Card.Text><strong>Статус:</strong> {lastProject.status}</Card.Text>
-                                        <Card.Text><strong>Создано:</strong> {new Date(lastProject.created_at).toLocaleString()}</Card.Text>
-                                    </Card.Body>
-                                </Card>
+                                <>
+                                    <h5 className="mt-4 mb-3 cus-title">Последний проект</h5>
+                                    <hr className="my-2" />
+                                    <Card className="mb-3">
+                                        <Card.Body>
+                                            <Card.Title>{lastProject.title}</Card.Title>
+                                            <Card.Text>{lastProject.description}</Card.Text>
+                                            <Card.Text><strong>Статус:</strong> {lastProject.status}</Card.Text>
+                                            <Card.Text><strong>Создано:</strong> {new Date(lastProject.created_at).toLocaleString()}</Card.Text>
+                                        </Card.Body>
+                                    </Card>
+                                </>
                             )}
                             <hr />
                             <Card.Text><strong>Последние отзывы:</strong></Card.Text>
@@ -180,7 +195,7 @@ const UserProfile = () => {
                                 </Card>
                             ))}
                             <hr />
-                            {!!localStorage.getItem('accessToken') && (
+                            {!isOwnProfile && !!localStorage.getItem('accessToken') && (
                                 <Button variant="primary" onClick={handleAddReview}>
                                     Добавить отзыв
                                 </Button>
