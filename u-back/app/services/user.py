@@ -157,7 +157,7 @@ def get_user_last_project(user_id):
     )
 
     if not last_project:
-        return jsonify({"message": "No projects found"}), 404
+        return jsonify({"message": "No projects found"}), 200
 
     return jsonify({
         "id": last_project.id,
