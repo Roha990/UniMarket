@@ -4,6 +4,7 @@ from ..common import errorWrapper, pageWrapper
 from ..models import User, Skill, UserSkill, Invitation, UserProject, Project, Review
 from ..extensions import db
 from sqlalchemy import desc, func
+from sqlalchemy.orm import aliased
 
 
 def get_user_info(user_id):
@@ -216,12 +217,24 @@ def get_recommended_projects(user_id):
         .all()
     )
 
-    return jsonify([{
-        "id": project.id,
-        "title": project.title,
-        "description": project.description,
-        "skills": [skill.name for skill in project.skills],
-        "created_at": project.created_at,
-        "status": project.status,
-        "direction": [direction.name for direction in project.directions],
-    } for project in recommended_projects]), 200
+    UserProjectAlias = aliased(UserProject)
+    InvitationAlias = aliased(Invitation)
+
+    project_list = []
+    for project in recommended_projects:
+        is_member = db.session.query(UserProjectAlias).filter_by(user_id=user_id, project_id=project.id).first() is not None
+        has_invitation = db.session.query(InvitationAlias).filter_by(user_id=user_id, project_id=project.id, status='pending').first() is not None
+
+        project_list.append({
+            "id": project.id,
+            "title": project.title,
+            "description": project.description,
+            "skills": [skill.name for skill in project.skills],
+            "created_at": project.created_at,
+            "status": project.status,
+            "direction": [direction.name for direction in project.directions],
+            "is_member": is_member,
+            "has_invitation": has_invitation
+        })
+
+    return jsonify(project_list), 200
