@@ -39,7 +39,8 @@ def login_user(data):
     additional_claims = {
         'user':{
             'role': user.role,
-            'full_name': user.full_name
+            'full_name': user.full_name,
+            'username': user.username
         }
     }
     access_token = create_access_token(identity=user_identity, additional_claims=additional_claims)

@@ -17,7 +17,7 @@ const NavbarComponent = () => {
     let fullName = "";
     if (decodedToken && decodedToken.user){
          isAdmin = decodedToken.user.role === 'admin';
-         fullName = decodedToken.user.full_name;
+         fullName = decodedToken.user.username;
     }
 
     const logoutSubmit = async () => {
