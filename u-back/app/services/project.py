@@ -292,7 +292,7 @@ def send_message(project_id, data, user_id):
 
 def is_member(project_id, current_user_id):
     if not current_user_id:
-        return jsonify({"message": "User ID is required"}), 400
+        jsonify({"is_member": False}), 200
 
     is_member = UserProject.query.filter_by(user_id=current_user_id, project_id=project_id).first() is not None
 

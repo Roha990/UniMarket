@@ -233,13 +233,15 @@ const ProjectsList = () => {
                                 <Card.Text><strong>Направление:</strong> {project.direction.join(', ')}</Card.Text>
                                 <Card.Text><strong>Статус:</strong> {project.status}</Card.Text>
                                 <Button variant="success" className="me-2" onClick={() => handleViewProject(project.id)} >Просмотреть</Button>
-                                {project.is_member ? (
-                                    <Button variant="secondary" className="me-2" disabled>Вы уже в проекте</Button>
-                                ) : project.has_invitation ? (
-                                    <Button variant="secondary" className="me-2" disabled>Вы уже подали заявку</Button>
-                                ) : (
-                                    <Button variant="primary" className="me-2" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
-                                )}
+                                {currentUserId ? (
+                                    project.is_member ? (
+                                        <Button variant="secondary" className="me-2" disabled>Вы уже в проекте</Button>
+                                    ) : project.has_invitation ? (
+                                        <Button variant="secondary" className="me-2" disabled>Вы уже подали заявку</Button>
+                                    ) : (
+                                        <Button variant="primary" className="me-2" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
+                                    )
+                                ) : null}
                             </Card.Body>
                         </Card>
                     ))}
@@ -257,13 +259,15 @@ const ProjectsList = () => {
                                     <Card.Text><strong>Направление:</strong> {project.direction.join(', ')}</Card.Text>
                                     <Card.Text><strong>Статус:</strong> {project.status}</Card.Text>
                                     <Button variant="success" onClick={() => handleViewProject(project.id)}>Просмотреть</Button>
-                                    {project.is_member ? (
-                                        <Button variant="secondary" disabled>Вы уже в проекте</Button>
-                                    ) : project.has_invitation ? (
-                                        <Button variant="secondary" disabled>Вы уже подали заявку</Button>
-                                    ) : (
-                                        <Button variant="primary" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
-                                    )}
+                                    {currentUserId ? (
+                                        project.is_member ? (
+                                            <Button variant="secondary" disabled>Вы уже в проекте</Button>
+                                        ) : project.has_invitation ? (
+                                            <Button variant="secondary" disabled>Вы уже подали заявку</Button>
+                                        ) : (
+                                            <Button variant="primary" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
+                                        )
+                                    ) : null}
                                 </Card.Body>
                             </Card>
                         ))}
