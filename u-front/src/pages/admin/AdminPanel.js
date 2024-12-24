@@ -47,7 +47,6 @@ const AdminPanel = () => {
                     <h4>Админ-панель</h4>
                     <Nav className="flex-column">
                         <Nav.Link as={Link} to="/admin/users">Пользователи</Nav.Link>
-                        <Nav.Link as={Link} to="/admin/projects">Проекты</Nav.Link>
                         <Nav.Link as={Link} to="/admin/skills">Список навыков</Nav.Link>
                         <Nav.Link as={Link} to="/admin/direction">Список направление проектов</Nav.Link>
                     </Nav>
