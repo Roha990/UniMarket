@@ -78,9 +78,9 @@ const ApplicationsList = () => {
                     {applications.map(application => (
                         <Card key={application.id} className="application-card mb-3">
                             <Card.Body>
-                                <Link to={`/user/${application.user_id}/profile`} className="user-link text-primary fw-bold">
+                                <Card.Text>Заявка на участие в проекте от <Link to={`/user/${application.user_id}/profile`} className="user-link text-primary fw-bold">
                                     {application.username}
-                                </Link>
+                                </Link> </Card.Text>
                                 <Card.Text>{application.description}</Card.Text>
                                 <Button variant="success" onClick={() => handleAcceptApplication(application.id)}>Принять</Button>
                                 <Button variant="danger" onClick={() => handleRejectApplication(application.id)}>Отклонить</Button>
