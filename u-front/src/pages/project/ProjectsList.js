@@ -132,6 +132,11 @@ const ProjectsList = () => {
                     project.id === projectId ? { ...project, has_invitation: true } : project
                 )
             );
+            setRecommendedProjects(prevProjects =>
+                prevProjects.map(project =>
+                    project.id === projectId ? { ...project, has_invitation: true } : project
+                )
+            );
         } catch (error) {
             alert(error.response.data.message);
         }
