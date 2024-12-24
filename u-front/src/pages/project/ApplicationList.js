@@ -81,7 +81,6 @@ const ApplicationsList = () => {
                                 <Card.Text>Заявка на участие в проекте от <Link to={`/user/${application.user_id}/profile`} className="user-link text-primary fw-bold">
                                     {application.username}
                                 </Link> </Card.Text>
-                                <Card.Text>{application.description}</Card.Text>
                                 <Button variant="success" onClick={() => handleAcceptApplication(application.id)}>Принять</Button>
                                 <Button variant="danger" onClick={() => handleRejectApplication(application.id)}>Отклонить</Button>
                             </Card.Body>
