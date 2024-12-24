@@ -265,7 +265,7 @@ const ProjectsList = () => {
                                         ) : project.has_invitation ? (
                                             <Button variant="secondary" disabled>Вы уже подали заявку</Button>
                                         ) : (
-                                            <Button variant="primary" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
+                                            <Button variant="primary" className="me-2" onClick={() => handleApplyProject(project.id)}>Подать заявку</Button>
                                         )
                                     ) : null}
                                 </Card.Body>
