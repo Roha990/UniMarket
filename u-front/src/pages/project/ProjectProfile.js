@@ -67,15 +67,11 @@ const ProjectDetail = () => {
                 <Col md={8}>
                     <Card className="shadow mb-4 position-relative border-0">
                         <Card.Body>
-                            {/* Статус проекта */}
                             <div className="project-status-badge position-absolute top-0 end-0 mt-1 me-2 fs-5">
                             <Badge bg={project.status === 'active' ? 'success' : 'danger'}>{project.status}</Badge>
                             </div>
-    
-                            {/* Заголовок */}
                             <Card.Title className="project-title text-center fs-3 mb-4" style={{ color: '#003366' }}>{project.title}</Card.Title>
-    
-                            {/* Владелец проекта */}
+
                             <Card.Text className="project-owner">
                                 <FaUsers className="text-info me-2" />
                                 <strong className="text-dark">Владелец проекта:</strong>{' '}
@@ -83,8 +79,6 @@ const ProjectDetail = () => {
                                     {creator.username}
                                 </Link>
                             </Card.Text>
-    
-                            {/* Навыки */}
                             <Card.Text className="project-skills">
                                 <FaTags className="text-warning me-2" />
                                 <strong className="text-dark">Навыки:</strong>
