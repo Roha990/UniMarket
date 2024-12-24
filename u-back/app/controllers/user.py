@@ -31,8 +31,7 @@ def reject_invitation_route(invitation_id):
 @bp.route(routeGroup + "/<int:user_id>", methods=['PUT'])
 @jwt_required()
 def update_user(user_id):
-    if get_jwt()['user']['role'] != 'admin' and user_id!=get_jwt_identity():
-        return {'message': 'Access denied'}, 403
+
     data = request.get_json()
     return update_user_info(user_id, data)
 

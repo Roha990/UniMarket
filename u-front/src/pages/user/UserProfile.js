@@ -18,6 +18,7 @@ const UserProfile = () => {
     const [showAddReview, setShowAddReview] = useState(false);
     const [isOwnProfile, setIsOwnProfile] = useState(false);
 
+
     useEffect(() => {
         const fetchUserData = async () => {
             try {
@@ -41,7 +42,8 @@ const UserProfile = () => {
                 const token = localStorage.getItem('accessToken');
                 if (token) {
                     const decodedToken = jwtDecode(token);
-                    setIsOwnProfile(decodedToken.userId == userId);
+                    const currentUserId = decodedToken ? decodedToken.sub : null;
+                    setIsOwnProfile(currentUserId == parseInt(userId, 10));
                 }
 
                 setLoading(false);
